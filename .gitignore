@@ -1,0 +1,10 @@
+# Ignore everything by default
+*
+
+# Whitelist allowed tracked files
+!LICENSE
+!license
+!README.md
+!readme.md
+!main.c
+!.gitignore
