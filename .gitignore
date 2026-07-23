@@ -1,10 +1,12 @@
 # Ignore everything by default
 *
 
-# Whitelist allowed tracked files
+# Whitelist allowed root files
 !LICENSE
 !license
 !README.md
 !readme.md
 !main.c
 !.gitignore
+!backup/
+!backup/perfect_main.c
