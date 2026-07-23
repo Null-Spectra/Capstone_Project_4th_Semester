@@ -24,7 +24,6 @@
 - [⚡ Technical Design & Safety Mechanisms](#-technical-design--safety-mechanisms)
 - [🚀 Compilation & Execution Guide](#-compilation--execution-guide)
 - [📁 Repository Organization](#-repository-organization)
-- [📜 License & Academic Disclosure](#-license--academic-disclosure)
 
 ---
 
@@ -41,14 +40,14 @@ The **DIU Hostel Management System** is an enterprise-grade, lightweight, locali
 ## 👥 Team Members & Contribution Matrix
 
 > [!NOTE]
-> All core functions in `main.c` are explicitly tagged by module authors to guarantee clear contribution traceability and academic integrity.
+> Function prototypes and implementation sections in `main.c` are explicitly structured and grouped by module authors for academic contribution traceability.
 
 | Contributor | Student ID | Workload Share | Core Functional Responsibilities & Contribution Scope |
 |---|---|---|---|
-| **Shaik Rezwan Ahmmed Rafi** <br>*(Lead Architect)* | `252-35-245` | **46.9%** | • **Core Storage Engine**: Database initialization & file I/O handlers.<br>• **Authentication Engine**: Password verification & role-based routing.<br>• **Financial Operations**: Manual payment logging, fee defaulters list, & monthly billing reset.<br>• **Cascading Record Cleaner**: Multi-file relational deletion routines.<br>• **Robust I/O Utilities**: Input buffer sanitization & automated date calculation. |
-| **Sadia Afrin Tabassum** | `252-35-268` | **Product Subsystems** | • **Data Lookup Subsystems**: Student search by exact ID & partial name matching.<br>• **Room Administration**: Bed allocation verification & room registry routines.<br>• **Staff Management**: Technician account creation, listing, & deletion services. |
-| **Humaira Hira** | `252-35-542` | **Product Subsystems** | • **System Portals**: Navigation controllers for Admin, Student, & Staff dashboards.<br>• **Student Registration**: Onboarding workflow & default fee generation.<br>• **Executive Summary**: High-level statistical report generator for administrators.<br>• **Transfer Request Processor**: Room transfer approval & denial workflows. |
-| **Saima Tabachchum (Prothoma)** | `252-35-253` | **Product Subsystems** | • **Data Structure Schemas**: Struct definitions for all 8 system entities.<br>• **CLI Interface Utilities**: Terminal screen clearing & visual UI divider formatting.<br>• **Student Services**: Complaint lodging, payment slip submissions, & leave requests.<br>• **Maintenance Portal**: Staff ticket viewing & complaint status update interface. |
+| **Shaik Rezwan Ahmmed Rafi** <br>*(Lead Architect)* | `252-35-245` | **37.7%** | • **Section 1**: Core Storage Engine, database file initialization & I/O helpers.<br>• **Authentication Router**: Central `login_portal()` handler.<br>• **Financial Operations**: Manual payment recording (`admin_fee_ops()`) & defaulters list.<br>• **Analytics Engine**: System-wide `admin_executive_summary()` reporting. |
+| **Sadia Afrin Tabassum** | `252-35-268` | **28.5%** | • **Section 2**: Student registration workflow (`admin_register_student()`).<br>• **Lookup Subsystems**: Student search by query (`admin_search_student()`).<br>• **Resource Management**: Room configuration (`admin_room_ops()`) & staff registration.<br>• **Maintenance Operations**: Ticket resolution (`staff_update_complaint()`). |
+| **Humaira Hira** | `252-35-542` | **20.0%** | • **Section 3**: Portal navigation controllers (`admin_portal()`, `student_portal()`, `staff_portal()`).<br>• **Request Services**: Room transfer requests (`student_request_transfer()`).<br>• **Financial Submissions**: Payment slip logging (`student_submit_slip()`).<br>• **Leave Subsystem**: Official leave processing (`student_request_leave()`). |
+| **Saima Tabachchum (Prothoma)** | `252-35-253` | **13.8%** | • **Section 4**: Student profile inspector (`student_view_profile()`).<br>• **Fee Status Inspector**: Student fee status view (`student_view_fees()`).<br>• **Complaints Inspector**: Global complaints list display (`staff_view_complaints()`).<br>• **Issue Lodging**: Maintenance complaint submission (`student_submit_complaint()`). |
 
 ---
 
@@ -102,16 +101,16 @@ graph TD
 
 Data persistence is managed via custom formatted flat-files (`.txt`) using formatted string records separated by standard delimiters (`;`).
 
-| File Name | Entity Struct | Primary Fields & Storage Format |
+| File Name | Primary Entity | Storage Format |
 |---|---|---|
-| `students.txt` | `struct Student` | `ID; Name; Department; Phone; Password; RoomNumber` |
-| `rooms.txt` | `struct Room` | `RoomNumber; Capacity; OccupiedBeds` |
-| `fees.txt` | `struct Fee` | `StudentID; MonthlyFee; ExtraFee; DueAmount; Status; PaymentDate` |
-| `complaints.txt` | `struct Complaint` | `ID; StudentID; Description; Status; Date` |
-| `transfers.txt` | `struct RoomTransfer` | `RequestID; StudentID; TargetRoomNumber; Status` |
-| `slips.txt` | `struct PaymentSlip` | `SlipID; StudentID; TransactionNumber; Amount; Status` |
-| `leave_requests.txt` | `struct LeaveRequest` | `RequestID; StudentID; Status` |
-| `staff.txt` | `struct Staff` | `ID; Name; Phone; Password` |
+| `students.txt` | Student Records | `ID; Name; Department; Phone; Password; RoomNumber` |
+| `rooms.txt` | Room Registry | `RoomNumber; Capacity; OccupiedBeds` |
+| `fees.txt` | Billing Accounts | `StudentID; MonthlyFee; ExtraFee; DueAmount; Status; PaymentDate` |
+| `complaints.txt` | Maintenance Tickets | `ID; StudentID; Description; Status; Date` |
+| `transfers.txt` | Transfer Requests | `RequestID; StudentID; TargetRoomNumber; Status` |
+| `slips.txt` | Payment Slips | `SlipID; StudentID; TransactionNumber; Amount; Status` |
+| `leave_requests.txt` | Leave Requests | `RequestID; StudentID; Status` |
+| `staff.txt` | Staff Credentials | `ID; Name; Phone; Password` |
 
 ---
 
@@ -122,7 +121,7 @@ The implementation directly satisfies the requirements specified in the project 
 | Module Icon | Module Name | Capability Overview | SRS Ref. | Priority |
 |:---:|---|---|:---:|:---:|
 | 🔐 | **Authentication & Security** | Role-based authentication routing for Admin, Student, and Staff dashboards. | FR001, FR002 | `MUST` |
-| 🧑‍🎓 | **Student Onboarding** | Student registration, duplicate ID prevention, profile edits, and cascading deletions. | FR003 - FR007 | `MUST` |
+| 🧑‍🎓 | **Student Onboarding** | Student registration, duplicate ID prevention, profile edits, and record deletions. | FR003 - FR007 | `MUST` |
 | 🛏️ | **Room & Occupancy** | Room creation, bed allocation, real-time vacancy tracking, and capacity enforcement. | FR008 - FR012 | `MUST` |
 | 💳 | **Financial Management** | Manual payment logging, fee defaulter tracking, financial summaries, and monthly billing resets. | FR013 - FR017 | `MUST` |
 | 🔄 | **Room Transfer Subsystem** | Student room transfer requests, administrative review, and automatic fee calculation. | FR018, FR019 | `COULD` |
@@ -145,20 +144,19 @@ sequenceDiagram
 
     Note over Admin, File: 1. Student Onboarding & Room Allocation
     Admin->>Engine: Enter Admin Credentials & Select "Register Student"
-    Engine->>File: Read students.txt & rooms.txt (Check Duplicate ID & Room Capacity)
-    Engine->>File: Write to students.txt, rooms.txt, & fees.txt
-    Engine-->>Admin: Registration Confirmed & Bed Allocated
+    Engine->>File: Write to students.txt & fees.txt
+    Engine-->>Admin: Student Registered Successfully
 
     Note over Student, File: 2. Complaint Submission
     Student->>Engine: Login to Student Portal & Submit Maintenance Complaint
-    Engine->>Engine: Calculate Auto-Increment ID & System Timestamp
+    Engine->>Engine: Auto-Increment ID & System Timestamp
     Engine->>File: Append Record to complaints.txt
     Engine-->>Student: Complaint Logged Successfully
 
     Note over Staff, File: 3. Complaint Resolution
     Staff->>Engine: Login to Staff Portal & View Pending Tickets
-    Staff->>Engine: Select Ticket ID & Update Status to "Resolved"
-    Engine->>File: Atomic Overwrite of complaints.txt
+    Staff->>Engine: Select Ticket Ref ID & Update Status to "Resolved"
+    Engine->>File: Update complaints.txt
     Engine-->>Staff: Ticket Marked Resolved
 ```
 
@@ -167,24 +165,21 @@ sequenceDiagram
 ## ⚡ Technical Design & Safety Mechanisms
 
 ### 1. Robust Input Sanitization
-To prevent terminal infinite loops caused by unexpected string characters during integer/double reading, `get_input_string()` uses `fgets()` combined with a stream buffer clearing loop:
+`get_str()` cleans trailing newline characters and handles inputs cleanly using `fgets()`:
 ```c
-/* Clears lingering characters from stdin buffer */
-int character;
-while ((character = getchar()) != '\n' && character != EOF);
+if (fgets(buf, size, stdin)) {
+    buf[strcspn(buf, "\r\n")] = '\0';
+}
 ```
 
 ### 2. Transactional File Swapping Pattern
-To prevent database file corruption during updates or deletions, data modifications write to a temporary file (`temp_*.txt`) before executing an atomic filesystem swap:
+To prevent data corruption during record updates or deletions, modified content is written to a temporary file (`temp.txt`) before performing a safe replacement:
 ```c
-fclose(source_file);
-fclose(temporary_file);
-remove("students.txt");
-rename("temp_students.txt", "students.txt");
+fclose(src);
+fclose(tmp);
+remove("fees.txt");
+rename("temp.txt", "fees.txt");
 ```
-
-### 3. Cascading Relational Deletion
-When an administrator deletes a student profile via `delete_student_all_records()`, the engine automatically purges corresponding entries across `students.txt`, `fees.txt`, `complaints.txt`, `transfers.txt`, `slips.txt`, and `leave_requests.txt`, while releasing allocated room beds in `rooms.txt`.
 
 ---
 
@@ -193,33 +188,21 @@ When an administrator deletes a student profile via `delete_student_all_records(
 ### System Prerequisites
 - **Compiler**: GCC 4.8+ (Linux/macOS) or MinGW GCC (Windows)
 - **Standard**: C99 or later
-- **Terminal**: Any ANSI-compliant standard terminal
+- **Terminal**: Standard ANSI terminal
 
-### Build Instructions
+### Build & Execution Instructions
 
-1. **Clone Repository**:
-   ```bash
-   git clone https://github.com/Null-Spectra/Capstone_Project_4th_Semester.git
-   cd Capstone_Project_4th_Semester
-   ```
+```bash
+# Clone Repository
+git clone https://github.com/Null-Spectra/Capstone_Project_4th_Semester.git
+cd Capstone_Project_4th_Semester
 
-2. **Compile Application**:
-   ```bash
-   # Standard compilation with C99 standard
-   gcc -Wall -Wextra -std=c99 main.c -o hostel_management
+# Compile main.c with GCC (C99 standard)
+gcc -Wall -Wextra -std=c99 main.c -o main
 
-   # Or quick compilation
-   gcc main.c -o main
-   ```
-
-3. **Execute CLI Program**:
-   ```bash
-   # On Linux / macOS:
-   ./main
-
-   # On Windows Command Prompt / PowerShell:
-   main.exe
-   ```
+# Run Executable
+./main
+```
 
 ---
 
@@ -227,10 +210,11 @@ When an administrator deletes a student profile via `delete_student_all_records(
 
 ```
 Capstone_Project_4th_Semester/
-├── README.md               # Professional Architecture & Project Documentation
+├── README.md               # System Documentation & Architecture Overview
 ├── .gitignore              # Configured Git Exclusion Rules for Executables & Data Files
 ├── LICENSE                 # License Agreement
-└── main.c                  # CAPSTONE CORE: Single-File C Engine
+├── srs.md                  # Complete Software Requirements Specification (SRS)
+└── main.c                  # CAPSTONE CORE: Single-File C Engine (579 Lines of C99 Code)
 ```
 
 ---
