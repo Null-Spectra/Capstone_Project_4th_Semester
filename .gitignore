@@ -1,12 +1,40 @@
-# Ignore everything by default
-*
+# Build outputs & binaries
+hostel_app
+hostel_app.exe
+*.o
+*.out
+*.exe
 
-# Whitelist allowed root files
+# System & IDE files
+.DS_Store
+*.swp
+
+# Runtime database text files
+students.txt
+rooms.txt
+fees.txt
+complaints.txt
+transfers.txt
+slips.txt
+leave_requests.txt
+staff.txt
+new_booking_requests.txt
+temp.txt
+
+# Whitelist source files & docs
 !LICENSE
-!license
 !README.md
-!readme.md
-!main.c
 !.gitignore
+!main.c
+!rafi.h
+!rafi.c
+!sadia.h
+!sadia.c
+!hira.h
+!hira.c
+!prothoma.h
+!prothoma.c
+!md5.h
+!md5.c
 !backup/
 !backup/perfect_main.c
