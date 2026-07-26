@@ -6,7 +6,5 @@
 #include <string.h>
 
 /* --- Hira's Prototypes --- */
-void student_request_transfer(int sid);
-void student_request_leave(int sid);
 
 #endif /* HIRA_H */

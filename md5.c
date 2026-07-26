@@ -1,19 +1,20 @@
 #include "md5.h"
 
-/* Ultra-simple mock MD5 function: generates a 32-character hash string */
-void md5_hash(const char *input, char output_hex[33]) {
-    unsigned int sum = 0;
-    int len = strlen(input);
+void simple_hex_hash(const char text[], char output[33]) {
+    unsigned int total = 0;
+    int length = strlen(text);
 
-    // Sum up character ASCII values
-    for (int i = 0; i < len; i++) {
-        sum += (unsigned char)input[i] * (i + 1);
+    for (int i = 0; i < length; i++) {
+        total = total + (text[i] * (i + 1));
     }
 
-    // Format into 4 8-digit numbers to total exactly 32 characters
-    snprintf(output_hex, 33, "%08u%08u%08u%08u",
-             sum % 100000000,
-             (sum + 1234567) % 100000000,
-             (sum + 7654321) % 100000000,
-             (sum + 9999999) % 100000000);
+    sprintf(output, "%08x%08x%08x%08x", 
+            total * 12345, 
+            total * 67890, 
+            total * 13579, 
+            total * 24680);
+}
+
+void md5_hash(const char *input, char output_hex[33]) {
+    simple_hex_hash(input, output_hex);
 }

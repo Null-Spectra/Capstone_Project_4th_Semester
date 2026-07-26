@@ -4,7 +4,7 @@
 #include "prothoma.h"
 
 /* ============================================================================
- * Section 1: RAFI (Simplified Storage, Portals & Core Operations)
+ * Section 1: RAFI (Storage, Portals & Core Operations)
  * ============================================================================ */
 
 int get_int() {
@@ -20,7 +20,7 @@ double get_dbl() {
 }
 
 void get_str(char *buf, int size) {
-    scanf("%s", buf);
+    scanf(" %[^\n]", buf);
 }
 
 void initialize_files() {
@@ -72,7 +72,7 @@ void admin_register_student() {
     double fee;
 
     printf("Student ID: "); scanf("%d", &id);
-    printf("Full Name: "); scanf("%s", name);
+    printf("Full Name: "); scanf(" %[^\n]", name);
     printf("Department: "); scanf("%s", dept);
     printf("Phone Number: "); scanf("%s", phone);
     printf("Password: "); scanf("%s", pass);
@@ -91,7 +91,7 @@ void admin_register_student() {
 void admin_search_student() {
     char q[50], line[256], name[50], dept[50], phone[20], pass[33];
     int id, rm;
-    printf("Search Name: "); scanf("%s", q);
+    printf("Search Name: "); scanf(" %[^\n]", q);
     FILE *f = fopen("students.txt", "r");
     if (f) {
         printf("\n--- Search Results ---\n");
@@ -221,8 +221,8 @@ void admin_portal() {
     while (1) {
         printf("\n=== Administrator Portal ===\n");
         printf("1. Register Student\n2. Delete Student\n3. Search Student\n4. Room Operations\n5. Fee Operations\n6. Register Staff\n7. Executive Summary\n8. Logout\nChoice: ");
-        int ch; scanf("%d", &ch);
-        if (ch == 8) break;
+        int ch;
+        if (scanf("%d", &ch) != 1 || ch == 8) break;
 
         if (ch == 1) admin_register_student();
         else if (ch == 2) admin_student_ops();
@@ -239,8 +239,8 @@ void student_portal(int sid) {
     while (1) {
         printf("\n=== Student Portal (ID: %d) ===\n", sid);
         printf("1. View Profile\n2. Fee Status\n3. Submit Payment Slip\n4. Request Room Transfer\n5. Lodge Complaint\n6. Request Leave\n7. Booking History\n8. Book for New Student\n9. Logout\nChoice: ");
-        int ch; scanf("%d", &ch);
-        if (ch == 9) break;
+        int ch;
+        if (scanf("%d", &ch) != 1 || ch == 9) break;
 
         if (ch == 1) student_view_profile(sid);
         else if (ch == 2) student_view_fees(sid);
@@ -258,8 +258,8 @@ void staff_portal(int staff_id) {
     while (1) {
         printf("\n=== Staff Portal (ID: %d) ===\n", staff_id);
         printf("1. View Complaints\n2. Resolve Complaint\n3. Logout\nChoice: ");
-        int ch; scanf("%d", &ch);
-        if (ch == 3) break;
+        int ch;
+        if (scanf("%d", &ch) != 1 || ch == 3) break;
 
         if (ch == 1) staff_view_complaints();
         else if (ch == 2) staff_update_complaint();
@@ -273,8 +273,8 @@ void login_portal() {
         printf("  UNIVERSITY HOSTEL MANAGEMENT SYSTEM CLI  \n");
         printf("===========================================\n");
         printf("1. Admin Portal\n2. Student Login\n3. Staff Login\n4. View Rooms & Prices (Public)\n5. See Facilities List\n6. Call Now / Contact Us\n7. Exit\nChoice: ");
-        int ch; scanf("%d", &ch);
-        if (ch == 7) break;
+        int ch;
+        if (scanf("%d", &ch) != 1 || ch == 7) break;
 
         if (ch == 4) { public_view_rooms(); pause_term(); continue; }
         else if (ch == 5) { show_facilities_list(); pause_term(); continue; }
