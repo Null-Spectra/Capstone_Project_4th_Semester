@@ -6,11 +6,11 @@
 #include <string.h>
 #include "md5.h"
 
-/* --- Rafi's Prototypes --- */
-void initialize_files();
-void get_str(char *buf, int size);
+/* --- Rafi's Simplified Helper & Module Prototypes --- */
 int get_int();
 double get_dbl();
+void get_str(char *buf, int size);
+void initialize_files();
 void pause_term();
 void append_line(const char *file, const char *data);
 int get_next_id(const char *file);
