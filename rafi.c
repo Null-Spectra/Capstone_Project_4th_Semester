@@ -26,8 +26,8 @@ void get_str(char *buf, int size) {
 void initialize_files() {
     const char *files[] = {
         "students.txt", "rooms.txt", "fees.txt", "complaints.txt",
-        "transfers.txt", "slips.txt", "leave_requests.txt", "staff.txt",
-        "new_booking_requests.txt"
+        "transfers.txt", "slips.txt", "leave_requests.txt",
+        "staff.txt", "new_booking_requests.txt"
     };
     for (int i = 0; i < 9; i++) {
         FILE *f = fopen(files[i], "a");
@@ -83,26 +83,31 @@ void admin_register_student() {
 
     sprintf(data, "%d;%s;%s;%s;%s;%d", id, name, dept, phone, hash, rm);
     append_line("students.txt", data);
-    sprintf(data, "%d;%.2f;0.00;%.2f;Unpaid;2026-07-22", id, fee, fee);
+    sprintf(data, "%d;%.2f;0.00;%.2f;Unpaid;%s", id, fee, fee, DEFAULT_DATE);
     append_line("fees.txt", data);
     printf("Student registered!\n");
 }
 
 void admin_search_student() {
-    char q[50], line[256], name[50], dept[50], phone[20], pass[33];
-    int id, rm;
-    printf("Search Name: "); scanf(" %[^\n]", q);
+    int search_id, id, rm, found = 0;
+    char line[256], name[50], dept[50], phone[20], pass[33];
+
+    printf("Enter Student ID: ");
+    scanf("%d", &search_id);
+
     FILE *f = fopen("students.txt", "r");
     if (f) {
-        printf("\n--- Search Results ---\n");
         while (fgets(line, 256, f)) {
             if (sscanf(line, "%d;%49[^;];%49[^;];%19[^;];%32[^;];%d", &id, name, dept, phone, pass, &rm) == 6) {
-                if (strstr(name, q)) {
-                    printf("ID: %d | Name: %s | Dept: %s | Phone: %s | Room: %d\n", id, name, dept, phone, rm);
+                if (id == search_id) {
+                    printf("\n--- Student Found ---\nID: %d | Name: %s | Dept: %s | Phone: %s | Room: %d\n", id, name, dept, phone, rm);
+                    found = 1;
+                    break;
                 }
             }
         }
         fclose(f);
+        if (!found) printf("Student ID #%d not found.\n", search_id);
     }
 }
 
@@ -194,7 +199,7 @@ void staff_view_complaints() {
 void student_submit_complaint(int sid) {
     char desc[100], data[256];
     printf("Complaint Description: "); scanf("%s", desc);
-    sprintf(data, "%d;%d;%s;Pending;2026-07-22", get_next_id("complaints.txt"), sid, desc);
+    sprintf(data, "%d;%d;%s;Pending;%s", get_next_id("complaints.txt"), sid, desc, DEFAULT_DATE);
     append_line("complaints.txt", data);
     printf("Complaint logged!\n");
 }
@@ -220,7 +225,15 @@ void staff_update_complaint() {
 void admin_portal() {
     while (1) {
         printf("\n=== Administrator Portal ===\n");
-        printf("1. Register Student\n2. Delete Student\n3. Search Student\n4. Room Operations\n5. Fee Operations\n6. Register Staff\n7. Executive Summary\n8. Logout\nChoice: ");
+        printf("1. Register Student\n");
+        printf("2. Delete Student\n");
+        printf("3. Search Student\n");
+        printf("4. Room Operations\n");
+        printf("5. Fee Operations\n");
+        printf("6. Register Staff\n");
+        printf("7. Executive Summary\n");
+        printf("8. Logout\n");
+        printf("Choice: ");
         int ch;
         if (scanf("%d", &ch) != 1 || ch == 8) break;
 
@@ -238,7 +251,16 @@ void admin_portal() {
 void student_portal(int sid) {
     while (1) {
         printf("\n=== Student Portal (ID: %d) ===\n", sid);
-        printf("1. View Profile\n2. Fee Status\n3. Submit Payment Slip\n4. Request Room Transfer\n5. Lodge Complaint\n6. Request Leave\n7. Booking History\n8. Book for New Student\n9. Logout\nChoice: ");
+        printf("1. View Profile\n");
+        printf("2. Fee Status\n");
+        printf("3. Submit Payment Slip\n");
+        printf("4. Request Room Transfer\n");
+        printf("5. Lodge Complaint\n");
+        printf("6. Request Leave\n");
+        printf("7. Booking History\n");
+        printf("8. Book for New Student\n");
+        printf("9. Logout\n");
+        printf("Choice: ");
         int ch;
         if (scanf("%d", &ch) != 1 || ch == 9) break;
 
@@ -272,7 +294,14 @@ void login_portal() {
         printf("\n===========================================\n");
         printf("  UNIVERSITY HOSTEL MANAGEMENT SYSTEM CLI  \n");
         printf("===========================================\n");
-        printf("1. Admin Portal\n2. Student Login\n3. Staff Login\n4. View Rooms & Prices (Public)\n5. See Facilities List\n6. Call Now / Contact Us\n7. Exit\nChoice: ");
+        printf("1. Admin Portal\n");
+        printf("2. Student Login\n");
+        printf("3. Staff Login\n");
+        printf("4. View Rooms & Prices (Public)\n");
+        printf("5. See Facilities List\n");
+        printf("6. Call Now / Contact Us\n");
+        printf("7. Exit\n");
+        printf("Choice: ");
         int ch;
         if (scanf("%d", &ch) != 1 || ch == 7) break;
 

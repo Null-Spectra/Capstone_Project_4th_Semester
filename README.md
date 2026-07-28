@@ -1,13 +1,14 @@
 <div align="center">
 
-# 🏛️ Hostel Management System
+# 🏛️ University Hostel Management System
 ### Department of Software Engineering • Daffodil International University (DIU)
-**Capstone Project 4th Semester (`main.c`)**
+**Capstone Project 4th Semester**
 
 [![Language: C](https://img.shields.io/badge/Language-C99-00599C?style=for-the-badge&logo=c)](https://en.wikipedia.org/wiki/C99)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen?style=for-the-badge&logo=gcc)](https://gcc.gnu.org/)
 [![Institution: DIU](https://img.shields.io/badge/DIU-Software--Engineering-00A859?style=for-the-badge)](https://daffodilvarsity.edu.bd/)
-[![Database: Flat--File](https://img.shields.io/badge/Storage-Flat--File%20(Zero--DB)-orange?style=for-the-badge)](srs.md)
+[![Database: Flat--File](https://img.shields.io/badge/Storage-Flat--File%20(Zero--DB)-orange?style=for-the-badge)]()
+[![Security: OpenSSL MD5](https://img.shields.io/badge/Security-OpenSSL%20MD5-red?style=for-the-badge&logo=openssl)](https://www.openssl.org/)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 
 ---
@@ -19,9 +20,9 @@
 - [👥 Team Members & Contribution Matrix](#-team-members--contribution-matrix)
 - [🏗️ System Architecture & Data Storage](#️-system-architecture--data-storage)
 - [💾 Data Persistence & File Schema](#-data-persistence--file-schema)
+- [🔒 Password Security & Hashing](#-password-security--hashing)
 - [🌟 Key Functional Modules & SRS Mapping](#-key-functional-modules--srs-mapping)
 - [🔄 User Workflow & Role Interactions](#-user-workflow--role-interactions)
-- [⚡ Technical Design & Safety Mechanisms](#-technical-design--safety-mechanisms)
 - [🚀 Compilation & Execution Guide](#-compilation--execution-guide)
 - [📁 Repository Organization](#-repository-organization)
 
@@ -29,47 +30,45 @@
 
 ## 📌 Executive Summary
 
-The **DIU Hostel Management System** is an enterprise-grade, lightweight, localized Command Line Interface (CLI) software application engineered natively in standard C (`main.c`). Developed as a core Capstone Project for the Department of Software Engineering at Daffodil International University, the system automates end-to-end hostel operations including student onboarding, room allocations, real-time vacancy tracking, financial billing cycles, maintenance complaint management, room transfer requests, and leave processing.
+The **DIU Hostel Management System** is a modular, lightweight, localized Command Line Interface (CLI) software application engineered in standard C (C99). Developed as a core Capstone Project for the Department of Software Engineering at Daffodil International University, the system automates end-to-end hostel operations including student onboarding, room allocations with pricing, real-time vacancy tracking, financial billing cycles, maintenance complaint management, room transfer requests, leave processing, and public visitor utilities.
 
-> [!IMPORTANT]
-> **Single-File Architectural Constraint (`main.c`)**
-> Per strict academic guidelines, the entire application engine—encompassing data structures, database I/O subroutines, authentication security, role-based dashboards, and business logic—is encapsulated cleanly inside a single source file (`main.c`). It operates with **zero external database dependencies** (No SQL/NoSQL), relying exclusively on native C standard library file I/O operations for data persistence.
+> [!NOTE]
+> **Modular Multi-File Architecture**  
+> The application is cleanly structured into domain-specific source (`.c`) and header (`.h`) files assigned to team contributors. It operates with **zero external database server dependencies** (No SQL/NoSQL), relying on native C standard library file I/O operations for data persistence alongside OpenSSL for password security.
 
 ---
 
 ## 👥 Team Members & Contribution Matrix
 
-> [!NOTE]
-> Function prototypes and implementation sections in `main.c` are explicitly structured and grouped by module authors for academic contribution traceability.
-
 | Contributor | Student ID | Workload Share | Core Functional Responsibilities & Contribution Scope |
 |---|---|---|---|
-| **Shaik Rezwan Ahmmed Rafi** <br>*(Lead Architect)* | `252-35-245` | **37.7%** | • **Section 1**: Core Storage Engine, database file initialization & I/O helpers.<br>• **Authentication Router**: Central `login_portal()` handler.<br>• **Financial Operations**: Manual payment recording (`admin_fee_ops()`) & defaulters list.<br>• **Analytics Engine**: System-wide `admin_executive_summary()` reporting. |
-| **Sadia Afrin Tabassum** | `252-35-268` | **28.5%** | • **Section 2**: Student registration workflow (`admin_register_student()`).<br>• **Lookup Subsystems**: Student search by query (`admin_search_student()`).<br>• **Resource Management**: Room configuration (`admin_room_ops()`) & staff registration.<br>• **Maintenance Operations**: Ticket resolution (`staff_update_complaint()`). |
-| **Humaira Hira** | `252-35-542` | **20.0%** | • **Section 3**: Portal navigation controllers (`admin_portal()`, `student_portal()`, `staff_portal()`).<br>• **Request Services**: Room transfer requests (`student_request_transfer()`).<br>• **Financial Submissions**: Payment slip logging (`student_submit_slip()`).<br>• **Leave Subsystem**: Official leave processing (`student_request_leave()`). |
-| **Saima Tabachchum (Prothoma)** | `252-35-253` | **13.8%** | • **Section 4**: Student profile inspector (`student_view_profile()`).<br>• **Fee Status Inspector**: Student fee status view (`student_view_fees()`).<br>• **Complaints Inspector**: Global complaints list display (`staff_view_complaints()`).<br>• **Issue Lodging**: Maintenance complaint submission (`student_submit_complaint()`). |
+| **Shaik Rezwan Ahmmed Rafi** <br>*(Lead Architect)* | `252-35-245` | **40%** | • **Core Storage Engine**: Database file initialization (`initialize_files`), record appending (`append_line`), auto-ID generation (`get_next_id`).<br>• **Input & Utility Layer**: Input handlers (`get_int`, `get_dbl`, `get_str`), screen pause controller.<br>• **Authentication & Portals**: Central landing portal (`login_portal`), Admin portal (`admin_portal`), Student portal (`student_portal`), Staff portal (`staff_portal`).<br>• **Student Operations**: Registration (`admin_register_student`) & Name search (`admin_search_student`).<br>• **Security**: OpenSSL MD5 password hashing integration (`get_password_md5`).<br>• **Financial & Complaints**: Fee recording (`admin_fee_ops`), payment slip logging (`student_submit_slip`), complaints engine (`staff_view_complaints`, `student_submit_complaint`, `staff_update_complaint`).<br>• **Analytics**: Executive summary dashboard (`admin_executive_summary`). |
+| **Sadia Afrin Tabassum** | `252-35-268` | **25%** | • **Room Operations**: Room registration with monthly pricing (`admin_room_ops`).<br>• **Public Inspection**: Public room availability & price list (`public_view_rooms`).<br>• **Contact Center**: Hotline directory (`show_call_now`).<br>• **Allocation History**: Student room booking & transfer request history (`student_view_booking_history`).<br>• **Administration**: Staff registration (`admin_staff_ops`) & student record removal (`admin_student_ops`). |
+| **Saima Tabachchum (Prothoma)** | `252-35-253` | **20%** | • **Profile & Fee Inspector**: Student profile view (`student_view_profile`) & fee status view (`student_view_fees`).<br>• **New Student Booking**: Submit room booking request for new students (`student_book_for_new`).<br>• **Amenities**: Interactive hostel facilities & amenities catalog (`show_facilities_list`).<br>• **Requests Subsystem**: Room transfer processing (`student_request_transfer`) & official leave processing (`student_request_leave`). |
+| **Humaira Hira** | `252-35-542` | **15%** | • **Workflow Design**: Portal navigation structures & system request workflow design. |
 
 ---
 
 ## 🏗️ System Architecture & Data Storage
 
-The application employs a layered modular architecture operating entirely within CLI space. The core engine mediates between user role interfaces and the flat-file persistence storage layer.
+The system follows a modular 3-tier architecture linking user presentation portals, domain-specific C modules, and flat-file persistence storage.
 
 ```mermaid
 graph TD
     subgraph Presentation Layer - User Portals
-        U1[🛡️ Administrator]
+        U1[🛡️ Administrator Portal]
         U2[🧑‍🎓 Student Portal]
-        U3[🛠️ Tech / Maintenance Staff]
+        U3[🛠️ Staff Portal]
+        U4[🌐 Public Visitors]
     end
 
-    subgraph Business Logic Layer - main.c
-        AUTH[🔐 User Authentication & RBAC Engine]
-        STUD[👤 Student & Staff Subsystem]
-        ROOM[🛏️ Room Allocation & Vacancy Engine]
-        FEE[💳 Financial Billing & Fee Subsystem]
-        COMP[🛠️ Complaint & Maintenance Tracker]
-        RPT[📊 Executive Summary Analytics Engine]
+    subgraph Business Logic Layer - C Modules
+        MAIN[main.c - Entry Point]
+        RAFI[rafi.c / rafi.h - Core Engine, Auth, Portals & Operations]
+        SADIA[sadia.c / sadia.h - Room Ops, Pricing, Call Now & History]
+        PROTHOMA[prothoma.c / prothoma.h - Profiles, Fees, Facilities & Requests]
+        HIRA[hira.c / hira.h - Workflow Definitions]
+        MD5[md5.c / md5.h - OpenSSL Password Hashing]
     end
 
     subgraph Data Persistence Layer - Local Flat Files
@@ -81,127 +80,99 @@ graph TD
         DB6[(slips.txt)]
         DB7[(leave_requests.txt)]
         DB8[(staff.txt)]
+        DB9[(new_booking_requests.txt)]
     end
 
-    U1 -->|Full Access| AUTH
-    U2 -->|Restricted Access| AUTH
-    U3 -->|Staff Access| AUTH
+    U1 & U2 & U3 & U4 --> MAIN
+    MAIN --> RAFI
+    RAFI --> SADIA & PROTHOMA & HIRA & MD5
 
-    AUTH --> STUD & ROOM & FEE & COMP & RPT
-
-    STUD <--> DB1 & DB8
-    ROOM <--> DB2 & DB5 & DB7
-    FEE <--> DB3 & DB6
-    COMP <--> DB4
+    RAFI <--> DB1 & DB3 & DB4 & DB6 & DB8
+    SADIA <--> DB2 & DB5 & DB8
+    PROTHOMA <--> DB1 & DB3 & DB5 & DB7 & DB9
 ```
 
 ---
 
 ## 💾 Data Persistence & File Schema
 
-Data persistence is managed via custom formatted flat-files (`.txt`) using formatted string records separated by standard delimiters (`;`).
+Data persistence is managed via custom delimited flat-files (`.txt`) using semicolon (`;`) separators:
 
 | File Name | Primary Entity | Storage Format |
 |---|---|---|
-| `students.txt` | Student Records | `ID; Name; Department; Phone; Password; RoomNumber` |
-| `rooms.txt` | Room Registry | `RoomNumber; Capacity; OccupiedBeds` |
+| `students.txt` | Student Records | `ID; Name; Department; Phone; PasswordHash; RoomNumber` |
+| `rooms.txt` | Room Registry | `RoomNumber; Capacity; OccupiedBeds; Price` |
 | `fees.txt` | Billing Accounts | `StudentID; MonthlyFee; ExtraFee; DueAmount; Status; PaymentDate` |
 | `complaints.txt` | Maintenance Tickets | `ID; StudentID; Description; Status; Date` |
 | `transfers.txt` | Transfer Requests | `RequestID; StudentID; TargetRoomNumber; Status` |
 | `slips.txt` | Payment Slips | `SlipID; StudentID; TransactionNumber; Amount; Status` |
 | `leave_requests.txt` | Leave Requests | `RequestID; StudentID; Status` |
 | `staff.txt` | Staff Credentials | `ID; Name; Phone; Password` |
+| `new_booking_requests.txt` | New Booking Requests | `RequestID; RecommenderID; NewStudentName; Dept; Phone; PreferredRoom; Status` |
 
 ---
 
-## 🌟 Key Functional Modules & SRS Mapping
+## 🔒 Password Security & Hashing
 
-The implementation directly satisfies the requirements specified in the project SRS Document:
+Student passwords are systematically secured using OpenSSL MD5 hashing before being written to disk:
 
-| Module Icon | Module Name | Capability Overview | SRS Ref. | Priority |
-|:---:|---|---|:---:|:---:|
-| 🔐 | **Authentication & Security** | Role-based authentication routing for Admin, Student, and Staff dashboards. | FR001, FR002 | `MUST` |
-| 🧑‍🎓 | **Student Onboarding** | Student registration, duplicate ID prevention, profile edits, and record deletions. | FR003 - FR007 | `MUST` |
-| 🛏️ | **Room & Occupancy** | Room creation, bed allocation, real-time vacancy tracking, and capacity enforcement. | FR008 - FR012 | `MUST` |
-| 💳 | **Financial Management** | Manual payment logging, fee defaulter tracking, financial summaries, and monthly billing resets. | FR013 - FR017 | `MUST` |
-| 🔄 | **Room Transfer Subsystem** | Student room transfer requests, administrative review, and automatic fee calculation. | FR018, FR019 | `COULD` |
-| 🛠️ | **Maintenance & Complaints** | Maintenance complaint lodging, global complaint log viewing, and ticket status updating. | FR020 - FR022 | `MUST` |
-| 🚪 | **Leave & De-allocation** | Official leave request submission and automated room de-allocation processing. | FR023, FR024 | `COULD` |
-| 📊 | **Executive Summary & I/O** | Automatic missing storage file creation and system-wide aggregate summary reports. | FR025 - FR027 | `MUST` |
-
----
-
-## 🔄 User Workflow & Role Interactions
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Admin as 🛡️ Administrator
-    actor Student as 🧑‍🎓 Student
-    actor Staff as 🛠️ Tech Staff
-    participant Engine as ⚙️ Core CLI Engine (main.c)
-    participant File as 💾 Local File Layer (.txt)
-
-    Note over Admin, File: 1. Student Onboarding & Room Allocation
-    Admin->>Engine: Enter Admin Credentials & Select "Register Student"
-    Engine->>File: Write to students.txt & fees.txt
-    Engine-->>Admin: Student Registered Successfully
-
-    Note over Student, File: 2. Complaint Submission
-    Student->>Engine: Login to Student Portal & Submit Maintenance Complaint
-    Engine->>Engine: Auto-Increment ID & System Timestamp
-    Engine->>File: Append Record to complaints.txt
-    Engine-->>Student: Complaint Logged Successfully
-
-    Note over Staff, File: 3. Complaint Resolution
-    Staff->>Engine: Login to Staff Portal & View Pending Tickets
-    Staff->>Engine: Select Ticket Ref ID & Update Status to "Resolved"
-    Engine->>File: Update complaints.txt
-    Engine-->>Staff: Ticket Marked Resolved
-```
+- **Header / Implementation**: [`md5.h`](file:///home/rafi/Daffodil/4th/Capstone/Capstone_Project_4th_Semester/md5.h) & [`md5.c`](file:///home/rafi/Daffodil/4th/Capstone/Capstone_Project_4th_Semester/md5.c)
+- **Hash Length**: 128-bit digest rendered as a **32-character hexadecimal string** (+1 null terminator `\0` = 33-byte buffer).
+- **Execution**:
+  ```c
+  void md5_hash(const char *input, char output_hex[33]) {
+      unsigned char hash[16];
+      MD5((const unsigned char *)input, strlen(input), hash);
+      for (int i = 0; i < 16; i++) {
+          sprintf(&output_hex[i * 2], "%02x", hash[i]);
+      }
+  }
+  ```
 
 ---
 
-## ⚡ Technical Design & Safety Mechanisms
+## 🌟 Key Functional Features
 
-### 1. Robust Input Sanitization
-`get_str()` cleans trailing newline characters and handles inputs cleanly using `fgets()`:
-```c
-if (fgets(buf, size, stdin)) {
-    buf[strcspn(buf, "\r\n")] = '\0';
-}
-```
-
-### 2. Transactional File Swapping Pattern
-To prevent data corruption during record updates or deletions, modified content is written to a temporary file (`temp.txt`) before performing a safe replacement:
-```c
-fclose(src);
-fclose(tmp);
-remove("fees.txt");
-rename("temp.txt", "fees.txt");
-```
+| Module Icon | Feature Name | Description | Responsible Author |
+|:---:|---|---|:---:|
+| 🔐 | **MD5 Password Security** | Hashes student passwords using OpenSSL MD5 before storage in `students.txt`. | Rafi |
+| 🧑‍🎓 | **Spaced Name Support** | Reads multi-word full names using `scanf(" %[^\n]", buf)`. | Rafi |
+| 🛏️ | **Room Pricing** | Admin sets room prices when creating rooms; stored alongside capacity. | Sadia |
+| 🌐 | **Public Room & Price Inspection** | Visitors view room availability and pricing prior to logging in. | Sadia |
+| 📞 | **Call Now / Hotlines** | Direct contact hotline display (`01711111111`, `01998989898`). | Sadia |
+| 📋 | **Booking History** | Students inspect active room allocations and transfer request logs. | Sadia |
+| 📝 | **Book for New Student** | Existing students log room requests for new candidates. | Prothoma |
+| 🏢 | **Facilities & Amenities List** | Public catalog of 24/7 Wi-Fi, Generator Backup, CCTV, Gym, Water Purifiers, etc. | Prothoma |
+| 🔄 | **Room Transfer & Leave** | Log room transfer requests and official leave applications. | Prothoma |
 
 ---
 
 ## 🚀 Compilation & Execution Guide
 
 ### System Prerequisites
-- **Compiler**: GCC 4.8+ (Linux/macOS) or MinGW GCC (Windows)
-- **Standard**: C99 or later
-- **Terminal**: Standard ANSI terminal
+- **Compiler**: GCC (Linux / macOS / MinGW on Windows)
+- **C Standard**: C99 or later
+- **Dependencies**: OpenSSL Development Library (`libcrypto`)
 
-### Build & Execution Instructions
+#### Installing OpenSSL Development Library (if needed):
+- **Ubuntu/Debian**: `sudo apt install libssl-dev`
+- **Fedora/RHEL**: `sudo dnf install openssl-devel`
+- **macOS**: `brew install openssl`
+
+---
+
+### Build & Run Instructions
 
 ```bash
-# Clone Repository
+# 1. Clone Repository
 git clone https://github.com/Null-Spectra/Capstone_Project_4th_Semester.git
 cd Capstone_Project_4th_Semester
 
-# Compile main.c with GCC (C99 standard)
-gcc -Wall -Wextra -std=c99 main.c -o main
+# 2. Compile Modular C Source Files with OpenSSL (-lcrypto)
+gcc -Wall main.c rafi.c sadia.c hira.c prothoma.c md5.c -lcrypto -o hostel_app
 
-# Run Executable
-./main
+# 3. Execute Binary
+./hostel_app
 ```
 
 ---
@@ -210,11 +181,16 @@ gcc -Wall -Wextra -std=c99 main.c -o main
 
 ```
 Capstone_Project_4th_Semester/
-├── README.md               # System Documentation & Architecture Overview
-├── .gitignore              # Configured Git Exclusion Rules for Executables & Data Files
-├── LICENSE                 # License Agreement
-├── srs.md                  # Complete Software Requirements Specification (SRS)
-└── main.c                  # CAPSTONE CORE: Single-File C Engine (579 Lines of C99 Code)
+├── README.md               # System Documentation & Architecture Guide
+├── .gitignore              # Git Exclusion Rules for Binaries & Database Text Files
+├── LICENSE                 # Project License Agreement
+├── main.c                  # Program Entry Point
+├── rafi.h / rafi.c         # Core Engine, File Storage, Auth, Portals & Operations
+├── sadia.h / sadia.c       # Room Operations, Pricing, Hotline & Booking History
+├── prothoma.h / prothoma.c # Profile, Fees, New Student Requests, Facilities & Transfers
+├── hira.h / hira.c         # Request Workflow Module
+├── md5.h / md5.c           # OpenSSL MD5 Password Hashing Module
+└── backup/                 # Historical Monolithic Backup (perfect_main.c)
 ```
 
 ---

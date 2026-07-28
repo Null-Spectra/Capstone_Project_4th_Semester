@@ -6,6 +6,8 @@
 #include <string.h>
 #include "md5.h"
 
+#define DEFAULT_DATE "2026-07-28"
+
 /* --- Rafi's Simplified Helper & Module Prototypes --- */
 int get_int();
 double get_dbl();
