@@ -222,9 +222,15 @@ void staff_update_complaint() {
     }
 }
 
-void admin_portal() {
-    while (1) {
+void admin_portal()
+{
+    int ch;
+    int sid;
+
+    while (1)
+    {
         printf("\n=== Administrator Portal ===\n");
+
         printf("1. Register Student\n");
         printf("2. Delete Student\n");
         printf("3. Search Student\n");
@@ -232,25 +238,94 @@ void admin_portal() {
         printf("5. Fee Operations\n");
         printf("6. Register Staff\n");
         printf("7. Executive Summary\n");
-        printf("8. Logout\n");
-        printf("Choice: ");
-        int ch;
-        if (scanf("%d", &ch) != 1 || ch == 8) break;
 
-        if (ch == 1) admin_register_student();
-        else if (ch == 2) admin_student_ops();
-        else if (ch == 3) admin_search_student();
-        else if (ch == 4) admin_room_ops();
-        else if (ch == 5) admin_fee_ops();
-        else if (ch == 6) admin_staff_ops();
-        else if (ch == 7) admin_executive_summary();
+        printf("8. View Guest Requests\n");
+        printf("9. Approve Guest Request\n");
+        printf("10. View Meal Requests\n");
+        printf("11. Approve Meal Request\n");
+        printf("12. View Late Entries\n");
+
+        printf("13. Logout\n");
+
+        printf("Choice: ");
+        scanf("%d", &ch);
+
+        switch(ch)
+        {
+            case 1:
+                admin_register_student();
+                break;
+
+            case 2:
+                admin_student_ops();
+                break;
+
+            case 3:
+                admin_search_student();
+                break;
+
+            case 4:
+                admin_room_ops();
+                break;
+
+            case 5:
+                admin_fee_ops();
+                break;
+
+            case 6:
+                admin_staff_ops();
+                break;
+
+            case 7:
+                admin_executive_summary();
+                break;
+
+            case 8:
+                admin_view_guest_requests();
+                break;
+
+            case 9:
+                printf("Enter Student ID: ");
+                scanf("%d", &sid);
+
+                admin_approve_guest(sid);
+                break;
+
+            case 10:
+                admin_view_meal_requests();
+                break;
+
+            case 11:
+                printf("Enter Student ID: ");
+                scanf("%d", &sid);
+
+                admin_approve_meal(sid);
+                break;
+
+            case 12:
+                admin_view_late_entries();
+                break;
+
+            case 13:
+                printf("Logging out...\n");
+                return;
+
+            default:
+                printf("Invalid Choice!\n");
+        }
+
         pause_term();
     }
 }
 
-void student_portal(int sid) {
-    while (1) {
+void student_portal(int sid)
+{
+    int ch;
+
+    while (1)
+    {
         printf("\n=== Student Portal (ID: %d) ===\n", sid);
+
         printf("1. View Profile\n");
         printf("2. Fee Status\n");
         printf("3. Submit Payment Slip\n");
@@ -259,23 +334,78 @@ void student_portal(int sid) {
         printf("6. Request Leave\n");
         printf("7. Booking History\n");
         printf("8. Book for New Student\n");
-        printf("9. Logout\n");
-        printf("Choice: ");
-        int ch;
-        if (scanf("%d", &ch) != 1 || ch == 9) break;
 
-        if (ch == 1) student_view_profile(sid);
-        else if (ch == 2) student_view_fees(sid);
-        else if (ch == 3) student_submit_slip(sid);
-        else if (ch == 4) student_request_transfer(sid);
-        else if (ch == 5) student_submit_complaint(sid);
-        else if (ch == 6) student_request_leave(sid);
-        else if (ch == 7) student_view_booking_history(sid);
-        else if (ch == 8) student_book_for_new(sid);
+        printf("9. Guest Registration\n");
+        printf("10. Meal Registration\n");
+        printf("11. Check In\n");
+        printf("12. Check Out\n");
+
+        printf("13. Logout\n");
+
+        printf("Choice: ");
+        scanf("%d", &ch);
+
+        switch(ch)
+        {
+            case 1:
+                student_view_profile(sid);
+                break;
+
+            case 2:
+                student_view_fees(sid);
+                break;
+
+            case 3:
+                student_submit_slip(sid);
+                break;
+
+            case 4:
+                student_request_transfer(sid);
+                break;
+
+            case 5:
+                student_submit_complaint(sid);
+                break;
+
+            case 6:
+                student_request_leave(sid);
+                break;
+
+            case 7:
+                student_view_booking_history(sid);
+                break;
+
+            case 8:
+                student_book_for_new(sid);
+                break;
+
+            case 9:
+                guest_register(sid);
+                break;
+
+            case 10:
+                meal_register(sid);
+                break;
+
+            case 11:
+                student_checkin(sid);
+                break;
+
+            case 12:
+                student_checkout(sid);
+                break;
+
+            case 13:
+                printf("Logging out...\n");
+                return;
+
+            default:
+                printf("Invalid Choice!\n");
+        }
+
         pause_term();
     }
 }
-
 void staff_portal(int staff_id) {
     while (1) {
         printf("\n=== Staff Portal (ID: %d) ===\n", staff_id);
