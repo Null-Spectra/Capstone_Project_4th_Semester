@@ -168,7 +168,7 @@ void admin_executive_summary() {
         }
         fclose(f);
     }
-
+    
     printf("\n=== Executive Summary Dashboard ===\n");
     printf("Students: %d | Rooms: %d | Complaints: %d | Defaulters: %d\n", st, rm, comp, def);
 }
