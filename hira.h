@@ -22,4 +22,8 @@ void student_checkin(int sid);
 void student_checkout(int sid);
 void admin_view_late_entries();
 
+void event_request(int sid);
+void admin_view_event_requests();
+void admin_approve_event(int sid);
+
 #endif /* HIRA_H */

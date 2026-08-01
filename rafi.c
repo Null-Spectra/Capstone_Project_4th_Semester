@@ -226,6 +226,7 @@ void admin_portal()
 {
     int ch;
     int sid;
+    int eventChoice;
 
     while (1)
     {
@@ -244,8 +245,9 @@ void admin_portal()
         printf("10. View Meal Requests\n");
         printf("11. Approve Meal Request\n");
         printf("12. View Late Entries\n");
+        printf("13. Event Management\n");
 
-        printf("13. Logout\n");
+        printf("14. Logout\n");
 
         printf("Choice: ");
         scanf("%d", &ch);
@@ -307,6 +309,46 @@ void admin_portal()
                 break;
 
             case 13:
+
+                while(1)
+                {
+                    printf("\n===== Event Management =====\n");
+                    printf("1. View Event Requests\n");
+                    printf("2. Approve/Reject Event\n");
+                    printf("3. Back\n");
+
+                    printf("Choice: ");
+                    scanf("%d", &eventChoice);
+
+                    switch(eventChoice)
+                    {
+                        case 1:
+                            admin_view_event_requests();
+                            break;
+
+                        case 2:
+                            printf("Enter Student ID: ");
+                            scanf("%d", &sid);
+
+                            admin_approve_event(sid);
+                            break;
+
+                        case 3:
+                            break;
+
+                        default:
+                            printf("Invalid Choice!\n");
+                    }
+
+                    if(eventChoice == 3)
+                        break;
+
+                    pause_term();
+                }
+
+                break;
+
+            case 14:
                 printf("Logging out...\n");
                 return;
 
@@ -339,8 +381,9 @@ void student_portal(int sid)
         printf("10. Meal Registration\n");
         printf("11. Check In\n");
         printf("12. Check Out\n");
+        printf("13. Event Request\n");
 
-        printf("13. Logout\n");
+        printf("14. Logout\n");
 
         printf("Choice: ");
         scanf("%d", &ch);
@@ -396,6 +439,10 @@ void student_portal(int sid)
                 break;
 
             case 13:
+                event_request(sid);
+                break;
+
+            case 14:
                 printf("Logging out...\n");
                 return;
 
