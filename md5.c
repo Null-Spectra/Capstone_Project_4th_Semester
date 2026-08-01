@@ -17,5 +17,7 @@ void simple_hex_hash(const char text[], char output[33]) {
 }
 
 void md5_hash(const char *input, char output_hex[33]) {
+
     simple_hex_hash(input, output_hex);
+    
 }
