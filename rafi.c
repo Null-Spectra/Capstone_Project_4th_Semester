@@ -20,6 +20,7 @@ double get_dbl() {
 }
 
 void get_str(char *buf, int size) {
+    (void)size;
     scanf(" %[^\n]", buf);
 }
 
@@ -27,9 +28,10 @@ void initialize_files() {
     const char *files[] = {
         "students.txt", "rooms.txt", "fees.txt", "complaints.txt",
         "transfers.txt", "slips.txt", "leave_requests.txt",
-        "staff.txt", "new_booking_requests.txt"
+        "staff.txt", "new_booking_requests.txt",
+        "guests.txt", "meals.txt", "checkin.txt", "checkout.txt"
     };
-    for (int i = 0; i < 9; i++) {
+    for (int i = 0; i < 13; i++) {
         FILE *f = fopen(files[i], "a");
         if (f) fclose(f);
     }
@@ -166,7 +168,7 @@ void admin_executive_summary() {
         }
         fclose(f);
     }
-
+    
     printf("\n=== Executive Summary Dashboard ===\n");
     printf("Students: %d | Rooms: %d | Complaints: %d | Defaulters: %d\n", st, rm, comp, def);
 }
@@ -386,7 +388,7 @@ void student_portal(int sid)
         printf("14. Logout\n");
 
         printf("Choice: ");
-        scanf("%d", &ch);
+        if (scanf("%d", &ch) != 1) break;
 
         switch(ch)
         {
