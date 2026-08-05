@@ -59,13 +59,6 @@ void student_request_transfer(int sid) {
     printf("Room transfer request logged!\n");
 }
 
-void student_request_leave(int sid) {
-    char data[256];
-    sprintf(data, "%d;%d;Pending", get_next_id("leave_requests.txt"), sid);
-    append_line("leave_requests.txt", data);
-    printf("Leave request logged!\n");
-}
-
 void student_book_for_new(int sid) {
     printf("\n=== Request New Student Room Booking ===\n");
     printf("New Student Full Name: ");

@@ -11,6 +11,5 @@ void student_view_fees(int sid);
 void student_book_for_new(int sid);
 void show_facilities_list();
 void student_request_transfer(int sid);
-void student_request_leave(int sid);
 
 #endif /* PROTHOMA_H */

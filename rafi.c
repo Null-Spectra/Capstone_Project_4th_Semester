@@ -42,6 +42,18 @@ void pause_term() {
     getchar(); getchar();
 }
 
+void clear_term() {
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
+
+void clear_screen() {
+    clear_term();
+}
+
 void append_line(const char *file, const char *data) {
     FILE *f = fopen(file, "a");
     if (f) {
@@ -111,6 +123,92 @@ void admin_search_student() {
         fclose(f);
         if (!found) printf("Student ID #%d not found.\n", search_id);
     }
+}
+
+void admin_search_room() {
+    int target_rm;
+    printf("Enter Room Number: ");
+    if (scanf("%d", &target_rm) != 1) {
+        printf("Invalid Room Number!\n");
+        return;
+    }
+
+    int capacity = -1;
+    double price = 0.0;
+    char line[256];
+
+    FILE *rf = fopen("rooms.txt", "r");
+    if (rf) {
+        int rm, cap, occ;
+        double p;
+        while (fgets(line, sizeof(line), rf)) {
+            p = 0.0;
+            if (sscanf(line, "%d;%d;%d;%lf", &rm, &cap, &occ, &p) >= 3) {
+                if (rm == target_rm) {
+                    capacity = cap;
+                    price = p;
+                    break;
+                }
+            }
+        }
+        fclose(rf);
+    }
+
+    FILE *sf = fopen("students.txt", "r");
+    int occupied_count = 0;
+
+    struct StudentInfo {
+        int id;
+        char name[50];
+        char dept[50];
+        char phone[20];
+    } students[100];
+
+    if (sf) {
+        int id, rm;
+        char name[50], dept[50], phone[20], pass[33];
+        while (fgets(line, sizeof(line), sf)) {
+            if (sscanf(line, "%d;%49[^;];%49[^;];%19[^;];%32[^;];%d", &id, name, dept, phone, pass, &rm) == 6) {
+                if (rm == target_rm) {
+                    if (occupied_count < 100) {
+                        students[occupied_count].id = id;
+                        strcpy(students[occupied_count].name, name);
+                        strcpy(students[occupied_count].dept, dept);
+                        strcpy(students[occupied_count].phone, phone);
+                    }
+                    occupied_count++;
+                }
+            }
+        }
+        fclose(sf);
+    }
+
+    printf("\n==================================================\n");
+    printf("           ROOM DETAILS - ROOM #%d                 \n", target_rm);
+    printf("==================================================\n");
+
+    if (capacity != -1) {
+        int free_beds = capacity - occupied_count;
+        if (free_beds < 0) free_beds = 0;
+        printf("Total Bed Capacity : %d\n", capacity);
+        printf("Occupied Beds      : %d\n", occupied_count);
+        printf("Free Beds Available: %d\n", free_beds);
+        printf("Monthly Price      : BDT %.2f\n", price);
+    } else {
+        printf("Room #%d is not listed in rooms.txt.\n", target_rm);
+        printf("Occupied Beds      : %d\n", occupied_count);
+    }
+
+    printf("\n--- Students Residing in Room #%d ---\n", target_rm);
+    if (occupied_count == 0) {
+        printf("No students currently assigned to Room #%d.\n", target_rm);
+    } else {
+        for (int i = 0; i < occupied_count && i < 100; i++) {
+            printf("%d. ID: %d | Name: %s | Dept: %s | Phone: %s\n",
+                   i + 1, students[i].id, students[i].name, students[i].dept, students[i].phone);
+        }
+    }
+    printf("==================================================\n");
 }
 
 void admin_fee_ops() {
@@ -183,16 +281,144 @@ void student_submit_slip(int sid) {
     printf("Payment slip submitted!\n");
 }
 
-void staff_view_complaints() {
+void student_request_leave(int sid) {
+    char leave_date[30], reason[100], data[256];
+    printf("Enter Intended Leave Date (YYYY-MM-DD): ");
+    get_str(leave_date, sizeof(leave_date));
+    printf("Enter Reason for Leave: ");
+    get_str(reason, sizeof(reason));
+
+    sprintf(data, "%d;%d;%s;%s;Pending", get_next_id("leave_requests.txt"), sid, leave_date, reason);
+    append_line("leave_requests.txt", data);
+    printf("Leave request for date '%s' logged successfully!\n", leave_date);
+}
+
+void admin_view_complaints() {
+    FILE *f = fopen("complaints.txt", "r");
+    if (!f) {
+        printf("\nNo complaints logged yet.\n");
+        return;
+    }
+    printf("\n==================================================\n");
+    printf("            ALL STUDENT COMPLAINTS LOG            \n");
+    printf("==================================================\n");
+    char line[256], desc[100], status[30], date[30];
+    int cid, sid, staff_id = 0, count = 0;
+    while (fgets(line, sizeof(line), f)) {
+        staff_id = 0;
+        int parsed = sscanf(line, "%d;%d;%99[^;];%29[^;];%d;%29[^\n]", &cid, &sid, desc, status, &staff_id, date);
+        if (parsed < 4) {
+            parsed = sscanf(line, "%d;%d;%99[^;];%29[^;];%29[^\n]", &cid, &sid, desc, status, date);
+        }
+        if (parsed >= 4) {
+            count++;
+            if (staff_id > 0) {
+                printf("Ref #%-4d | Student #%-8d | Staff #%-4d | Status: %-10s | Desc: %s\n",
+                       cid, sid, staff_id, status, desc);
+            } else {
+                printf("Ref #%-4d | Student #%-8d | Staff: Unassigned    | Status: %-10s | Desc: %s\n",
+                       cid, sid, status, desc);
+            }
+        }
+    }
+    if (count == 0) {
+        printf("No complaints found.\n");
+    }
+    printf("==================================================\n");
+    fclose(f);
+}
+
+void admin_assign_complaint() {
+    FILE *sf = fopen("staff.txt", "r");
+    printf("\n==================================================\n");
+    printf("              REGISTERED STAFF MEMBERS            \n");
+    printf("==================================================\n");
+    int staff_count = 0;
+    if (sf) {
+        char sline[256], sname[50], sphone[20], spass[20];
+        int st_id;
+        while (fgets(sline, sizeof(sline), sf)) {
+            if (sscanf(sline, "%d;%49[^;];%19[^;];%19[^\n]", &st_id, sname, sphone, spass) >= 3) {
+                printf("Staff ID: %d | Name: %s | Phone: %s\n", st_id, sname, sphone);
+                staff_count++;
+            }
+        }
+        fclose(sf);
+    }
+    if (staff_count == 0) {
+        printf("No staff members registered in staff.txt yet!\n");
+        printf("==================================================\n");
+        return;
+    }
+    printf("==================================================\n");
+
+    printf("Enter Complaint Ref ID to Assign: ");
+    int target_cid;
+    if (scanf("%d", &target_cid) != 1) {
+        printf("Invalid Complaint Ref ID!\n");
+        return;
+    }
+    printf("Enter Staff ID to Assign to: ");
+    int target_staff;
+    if (scanf("%d", &target_staff) != 1) {
+        printf("Invalid Staff ID!\n");
+        return;
+    }
+
+    FILE *src = fopen("complaints.txt", "r");
+    FILE *tmp = fopen("temp.txt", "w");
+    int found = 0;
+    if (src && tmp) {
+        char line[256], desc[100], status[30], date[30];
+        int cid, sid, staff_id;
+        while (fgets(line, sizeof(line), src)) {
+            staff_id = 0;
+            int parsed = sscanf(line, "%d;%d;%99[^;];%29[^;];%d;%29[^\n]", &cid, &sid, desc, status, &staff_id, date);
+            if (parsed < 4) {
+                parsed = sscanf(line, "%d;%d;%99[^;];%29[^;];%29[^\n]", &cid, &sid, desc, status, date);
+            }
+            if (parsed >= 4) {
+                if (cid == target_cid) {
+                    found = 1;
+                    staff_id = target_staff;
+                    strcpy(status, "Assigned");
+                }
+                fprintf(tmp, "%d;%d;%s;%s;%d;%s\n", cid, sid, desc, status, staff_id, date);
+            }
+        }
+        fclose(src);
+        fclose(tmp);
+        remove("complaints.txt");
+        rename("temp.txt", "complaints.txt");
+        if (found) {
+            printf("Complaint Ref #%d successfully assigned to Staff #%d!\n", target_cid, target_staff);
+        } else {
+            printf("Complaint Ref #%d not found.\n", target_cid);
+        }
+    }
+}
+
+void staff_view_complaints(int staff_id) {
     FILE *f = fopen("complaints.txt", "r");
     if (f) {
-        printf("\n--- Complaints Log ---\n");
-        char line[256], desc[100], status[20], date[30];
-        int cid, sid;
-        while (fgets(line, 256, f)) {
-            if (sscanf(line, "%d;%d;%99[^;];%19[^;];%29[^\n]", &cid, &sid, desc, status, date) == 5) {
-                printf("Ref #%d | Student #%d | %s | Status: %s\n", cid, sid, desc, status);
+        printf("\n--- Complaints Log for Staff #%d ---\n", staff_id);
+        char line[256], desc[100], status[30], date[30];
+        int cid, sid, st_id = 0, count = 0;
+        while (fgets(line, sizeof(line), f)) {
+            st_id = 0;
+            int parsed = sscanf(line, "%d;%d;%99[^;];%29[^;];%d;%29[^\n]", &cid, &sid, desc, status, &st_id, date);
+            if (parsed < 4) {
+                parsed = sscanf(line, "%d;%d;%99[^;];%29[^;];%29[^\n]", &cid, &sid, desc, status, date);
             }
+            if (parsed >= 4) {
+                if (st_id == staff_id || st_id == 0) {
+                    printf("Ref #%d | Student #%d | %s | Status: %s\n", cid, sid, desc, status);
+                    count++;
+                }
+            }
+        }
+        if (count == 0) {
+            printf("No complaints assigned to Staff #%d.\n", staff_id);
         }
         fclose(f);
     }
@@ -200,27 +426,34 @@ void staff_view_complaints() {
 
 void student_submit_complaint(int sid) {
     char desc[100], data[256];
-    printf("Complaint Description: "); scanf("%s", desc);
-    sprintf(data, "%d;%d;%s;Pending;%s", get_next_id("complaints.txt"), sid, desc, DEFAULT_DATE);
+    printf("Complaint Description: ");
+    get_str(desc, sizeof(desc));
+    sprintf(data, "%d;%d;%s;Pending;0;%s", get_next_id("complaints.txt"), sid, desc, DEFAULT_DATE);
     append_line("complaints.txt", data);
-    printf("Complaint logged!\n");
+    printf("Complaint submitted to Admin successfully!\n");
 }
 
 void staff_update_complaint() {
-    int ref_id, cid, sid;
-    char line[256], desc[100], status[20], date[30];
-    printf("Complaint Ref ID: "); scanf("%d", &ref_id);
+    int ref_id, cid, sid, staff_id;
+    char line[256], desc[100], status[30], date[30];
+    printf("Complaint Ref ID: ");
+    if (scanf("%d", &ref_id) != 1) return;
     FILE *src = fopen("complaints.txt", "r"), *tmp = fopen("temp.txt", "w");
     if (src && tmp) {
-        while (fgets(line, 256, src)) {
-            if (sscanf(line, "%d;%d;%99[^;];%19[^;];%29[^\n]", &cid, &sid, desc, status, date) == 5) {
+        while (fgets(line, sizeof(line), src)) {
+            staff_id = 0;
+            int parsed = sscanf(line, "%d;%d;%99[^;];%29[^;];%d;%29[^\n]", &cid, &sid, desc, status, &staff_id, date);
+            if (parsed < 4) {
+                parsed = sscanf(line, "%d;%d;%99[^;];%29[^;];%29[^\n]", &cid, &sid, desc, status, date);
+            }
+            if (parsed >= 4) {
                 if (cid == ref_id) strcpy(status, "Resolved");
-                fprintf(tmp, "%d;%d;%s;%s;%s\n", cid, sid, desc, status, date);
+                fprintf(tmp, "%d;%d;%s;%s;%d;%s\n", cid, sid, desc, status, staff_id, date);
             }
         }
         fclose(src); fclose(tmp);
         remove("complaints.txt"); rename("temp.txt", "complaints.txt");
-        printf("Complaint updated!\n");
+        printf("Complaint status updated to Resolved!\n");
     }
 }
 
@@ -232,27 +465,30 @@ void admin_portal()
 
     while (1)
     {
+        clear_term();
         printf("\n=== Administrator Portal ===\n");
 
         printf("1. Register Student\n");
         printf("2. Delete Student\n");
         printf("3. Search Student\n");
-        printf("4. Room Operations\n");
-        printf("5. Fee Operations\n");
-        printf("6. Register Staff\n");
-        printf("7. Executive Summary\n");
+        printf("4. Room Wise Search\n");
+        printf("5. Room Operations\n");
+        printf("6. Fee Operations\n");
+        printf("7. Register Staff\n");
+        printf("8. Executive Summary\n");
 
-        printf("8. View Guest Requests\n");
-        printf("9. Approve Guest Request\n");
-        printf("10. View Meal Requests\n");
-        printf("11. Approve Meal Request\n");
-        printf("12. View Late Entries\n");
-        printf("13. Event Management\n");
+        printf("9. View Guest Requests\n");
+        printf("10. Approve Guest Request\n");
+        printf("11. View Meal Requests\n");
+        printf("12. Approve Meal Request\n");
+        printf("13. View Late Entries\n");
+        printf("14. Event Management\n");
+        printf("15. Complaint Management\n");
 
-        printf("14. Logout\n");
+        printf("16. Logout\n");
 
         printf("Choice: ");
-        scanf("%d", &ch);
+        if (scanf("%d", &ch) != 1 || ch == 16) break;
 
         switch(ch)
         {
@@ -269,51 +505,62 @@ void admin_portal()
                 break;
 
             case 4:
-                admin_room_ops();
+                admin_search_room();
                 break;
 
             case 5:
-                admin_fee_ops();
+                admin_room_ops();
                 break;
 
             case 6:
-                admin_staff_ops();
+                admin_fee_ops();
                 break;
 
             case 7:
-                admin_executive_summary();
+                admin_staff_ops();
                 break;
 
             case 8:
-                admin_view_guest_requests();
+                admin_executive_summary();
                 break;
 
             case 9:
-                printf("Enter Student ID: ");
-                scanf("%d", &sid);
-
-                admin_approve_guest(sid);
+                admin_view_guest_requests();
                 break;
 
             case 10:
-                admin_view_meal_requests();
+                printf("Enter Student ID: ");
+                if (scanf("%d", &sid) != 1) {
+                    printf("Invalid Input!\n");
+                    pause_term();
+                    break;
+                }
+                admin_approve_guest(sid);
                 break;
 
             case 11:
-                printf("Enter Student ID: ");
-                scanf("%d", &sid);
-
-                admin_approve_meal(sid);
+                admin_view_meal_requests();
                 break;
 
             case 12:
-                admin_view_late_entries();
+                printf("Enter Student ID: ");
+                if (scanf("%d", &sid) != 1) {
+                    printf("Invalid Input!\n");
+                    pause_term();
+                    break;
+                }
+                admin_approve_meal(sid);
                 break;
 
             case 13:
+                admin_view_late_entries();
+                break;
+
+            case 14:
 
                 while(1)
                 {
+                    clear_term();
                     printf("\n===== Event Management =====\n");
                     printf("1. View Event Requests\n");
                     printf("2. Approve/Reject Event\n");
@@ -330,8 +577,11 @@ void admin_portal()
 
                         case 2:
                             printf("Enter Student ID: ");
-                            scanf("%d", &sid);
-
+                            if (scanf("%d", &sid) != 1) {
+                                printf("Invalid Input!\n");
+                                pause_term();
+                                break;
+                            }
                             admin_approve_event(sid);
                             break;
 
@@ -350,7 +600,24 @@ void admin_portal()
 
                 break;
 
-            case 14:
+            case 15:
+                while(1) {
+                    clear_term();
+                    printf("\n===== Complaint Management =====\n");
+                    printf("1. View All Complaints\n");
+                    printf("2. Assign Complaint to Staff\n");
+                    printf("3. Back\n");
+                    printf("Choice: ");
+                    int compChoice;
+                    if (scanf("%d", &compChoice) != 1 || compChoice == 3) break;
+                    if (compChoice == 1) admin_view_complaints();
+                    else if (compChoice == 2) admin_assign_complaint();
+                    else printf("Invalid Choice!\n");
+                    pause_term();
+                }
+                break;
+
+            case 16:
                 printf("Logging out...\n");
                 return;
 
@@ -368,6 +635,7 @@ void student_portal(int sid)
 
     while (1)
     {
+        clear_term();
         printf("\n=== Student Portal (ID: %d) ===\n", sid);
 
         printf("1. View Profile\n");
@@ -457,38 +725,153 @@ void student_portal(int sid)
 }
 void staff_portal(int staff_id) {
     while (1) {
+        clear_term();
         printf("\n=== Staff Portal (ID: %d) ===\n", staff_id);
         printf("1. View Complaints\n2. Resolve Complaint\n3. Logout\nChoice: ");
         int ch;
         if (scanf("%d", &ch) != 1 || ch == 3) break;
 
-        if (ch == 1) staff_view_complaints();
+        if (ch == 1) staff_view_complaints(staff_id);
         else if (ch == 2) staff_update_complaint();
+        pause_term();
+    }
+}
+
+void provost_view_all_students() {
+    FILE *f = fopen("students.txt", "r");
+    if (!f) {
+        printf("\nNo student records found.\n");
+        return;
+    }
+    printf("\n==================================================\n");
+    printf("            ALL REGISTERED STUDENTS LOG           \n");
+    printf("==================================================\n");
+    char line[256], name[50], dept[50], phone[20], pass[33];
+    int id, rm, count = 0;
+    while (fgets(line, sizeof(line), f)) {
+        if (sscanf(line, "%d;%49[^;];%49[^;];%19[^;];%32[^;];%d", &id, name, dept, phone, pass, &rm) == 6) {
+            printf("ID: %-8d | Name: %-20s | Dept: %-8s | Phone: %-13s | Room: %d\n",
+                   id, name, dept, phone, rm);
+            count++;
+        }
+    }
+    if (count == 0) printf("No students listed.\n");
+    printf("==================================================\n");
+    fclose(f);
+}
+
+void provost_view_all_staff() {
+    FILE *sf = fopen("staff.txt", "r");
+    if (!sf) {
+        printf("\nNo staff records found.\n");
+        return;
+    }
+    printf("\n==================================================\n");
+    printf("            ALL REGISTERED STAFF MEMBERS          \n");
+    printf("==================================================\n");
+    char sline[256], sname[50], sphone[20], spass[20];
+    int st_id, count = 0;
+    while (fgets(sline, sizeof(sline), sf)) {
+        if (sscanf(sline, "%d;%49[^;];%19[^;];%19[^\n]", &st_id, sname, sphone, spass) >= 3) {
+            printf("Staff ID: %-5d | Name: %-20s | Phone: %s\n", st_id, sname, sphone);
+            count++;
+        }
+    }
+    if (count == 0) printf("No staff members listed.\n");
+    printf("==================================================\n");
+    fclose(sf);
+}
+
+void provost_view_fee_records() {
+    FILE *f = fopen("fees.txt", "r");
+    if (!f) {
+        printf("\nNo fee records found.\n");
+        return;
+    }
+    printf("\n==================================================\n");
+    printf("            STUDENT FINANCIAL & FEE LOG           \n");
+    printf("==================================================\n");
+    char line[256], status[20], date[30];
+    int id, count = 0;
+    double monthly, extra, due;
+    while (fgets(line, sizeof(line), f)) {
+        if (sscanf(line, "%d;%lf;%lf;%lf;%19[^;];%29[^\n]", &id, &monthly, &extra, &due, status, date) == 6) {
+            printf("Student #%-8d | Monthly: BDT %-8.2f | Due: BDT %-8.2f | Status: %-8s | Date: %s\n",
+                   id, monthly, due, status, date);
+            count++;
+        }
+    }
+    if (count == 0) printf("No fee records listed.\n");
+    printf("==================================================\n");
+    fclose(f);
+}
+
+void provost_portal() {
+    int ch;
+    while (1) {
+        clear_term();
+        printf("\n===========================================\n");
+        printf("     PROVOST / SUPERADMIN PORTAL (READ-ONLY) \n");
+        printf("===========================================\n");
+        printf("1. Executive Summary Dashboard\n");
+        printf("2. Search Student Details\n");
+        printf("3. View All Registered Students\n");
+        printf("4. Room Wise Search & Occupancy\n");
+        printf("5. View All Rooms & Pricing\n");
+        printf("6. View All Complaint Logs\n");
+        printf("7. View All Fee Records & Defaulters\n");
+        printf("8. View Registered Staff Members\n");
+        printf("9. View Guest Requests\n");
+        printf("10. View Meal Requests\n");
+        printf("11. View Event Requests\n");
+        printf("12. View Late Entry Logs\n");
+        printf("13. Logout\n");
+        printf("Choice: ");
+        if (scanf("%d", &ch) != 1 || ch == 13) break;
+
+        switch(ch) {
+            case 1: admin_executive_summary(); break;
+            case 2: admin_search_student(); break;
+            case 3: provost_view_all_students(); break;
+            case 4: admin_search_room(); break;
+            case 5: public_view_rooms(); break;
+            case 6: admin_view_complaints(); break;
+            case 7: provost_view_fee_records(); break;
+            case 8: provost_view_all_staff(); break;
+            case 9: admin_view_guest_requests(); break;
+            case 10: admin_view_meal_requests(); break;
+            case 11: admin_view_event_requests(); break;
+            case 12: admin_view_late_entries(); break;
+            case 13: printf("Logging out...\n"); return;
+            default: printf("Invalid Choice!\n");
+        }
         pause_term();
     }
 }
 
 void login_portal() {
     while (1) {
+        clear_term();
         printf("\n===========================================\n");
         printf("  UNIVERSITY HOSTEL MANAGEMENT SYSTEM CLI  \n");
         printf("===========================================\n");
         printf("1. Admin Portal\n");
-        printf("2. Student Login\n");
-        printf("3. Staff Login\n");
-        printf("4. View Rooms & Prices (Public)\n");
-        printf("5. See Facilities List\n");
-        printf("6. Call Now / Contact Us\n");
-        printf("7. Exit\n");
+        printf("2. Provost / Superadmin Portal\n");
+        printf("3. Student Login\n");
+        printf("4. Staff Login\n");
+        printf("5. View Rooms & Prices (Public)\n");
+        printf("6. See Facilities List\n");
+        printf("7. Call Now / Contact Us\n");
+        printf("8. Exit\n");
         printf("Choice: ");
         int ch;
-        if (scanf("%d", &ch) != 1 || ch == 7) break;
+        if (scanf("%d", &ch) != 1 || ch == 8) break;
 
-        if (ch == 4) { public_view_rooms(); pause_term(); continue; }
-        else if (ch == 5) { show_facilities_list(); pause_term(); continue; }
-        else if (ch == 6) { show_call_now(); pause_term(); continue; }
+        if (ch == 5) { public_view_rooms(); pause_term(); continue; }
+        else if (ch == 6) { show_facilities_list(); pause_term(); continue; }
+        else if (ch == 7) { show_call_now(); pause_term(); continue; }
 
-        if (ch >= 1 && ch <= 3) {
+        if (ch >= 1 && ch <= 4) {
             char u[32], p[32];
             printf("ID / Username: "); scanf("%s", u);
             printf("Password: "); scanf("%s", p);
@@ -496,8 +879,12 @@ void login_portal() {
             if (ch == 1) {
                 if (strcmp(u, "admin") == 0 && strcmp(p, "admin") == 0) admin_portal();
                 else { printf("Auth Failed!\n"); pause_term(); }
-            } else if (ch == 2) student_portal(atoi(u));
-            else if (ch == 3) staff_portal(atoi(u));
+            } else if (ch == 2) {
+                if ((strcmp(u, "superadmin") == 0 && strcmp(p, "superadmin") == 0) ||
+                    (strcmp(u, "superadmin") == 0 && strcmp(p, "superpass") == 0)) provost_portal();
+                else { printf("Auth Failed!\n"); pause_term(); }
+            } else if (ch == 3) student_portal(atoi(u));
+            else if (ch == 4) staff_portal(atoi(u));
         }
     }
 }

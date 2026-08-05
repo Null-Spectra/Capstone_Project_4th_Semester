@@ -6,7 +6,7 @@
  * ============================================================================ */
 
 void admin_room_ops() {
-    printf("1. Register Room\n2. View Rooms\nChoice: ");
+    printf("1. Register Room\n2. View Rooms\n3. Room Wise Search\nChoice: ");
     int rch = get_int();
     char data[256], line[256];
 
@@ -20,6 +20,8 @@ void admin_room_ops() {
         sprintf(data, "%d;%d;0;%.2f", rm, cap, price);
         append_line("rooms.txt", data);
         printf("Room registered with price BDT %.2f!\n", price);
+    } else if (rch == 3) {
+        admin_search_room();
     } else {
         FILE *f = fopen("rooms.txt", "r");
         if (f) {
