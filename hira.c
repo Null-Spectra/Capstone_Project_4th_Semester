@@ -321,3 +321,180 @@ void admin_view_late_entries()
 
     fclose(fp);
 }
+
+void event_request(int sid)
+{
+    FILE *fp;
+    char eventName[100];
+    int type;
+    int participants;
+
+    printf("\n===== Event Request =====\n");
+
+    printf("Enter Event Name: ");
+    scanf(" %[^\n]", eventName);
+
+    printf("\n1. Cultural\n");
+    printf("2. Sports\n");
+    printf("3. Seminar\n");
+
+    printf("Choose Event Type: ");
+    scanf("%d", &type);
+
+    printf("Number of Participants: ");
+    scanf("%d", &participants);
+
+    fp = fopen("events.txt", "a");
+
+    if(fp == NULL)
+    {
+        printf("File Error!\n");
+        return;
+    }
+
+    fprintf(fp, "%d %s %d %d Pending\n",
+            sid, eventName, type, participants);
+
+    fclose(fp);
+
+    printf("\nEvent Request Sent Successfully.\n");
+}
+
+void admin_view_event_requests()
+{
+    FILE *fp;
+
+    int sid;
+    char eventName[100];
+    int type;
+    int participants;
+    char status[20];
+
+    fp = fopen("events.txt", "r");
+
+    if(fp == NULL)
+    {
+        printf("No Event Requests Found.\n");
+        return;
+    }
+
+    printf("\n========== EVENT REQUESTS ==========\n");
+
+    while(fscanf(fp, "%d %s %d %d %s",
+                 &sid,
+                 eventName,
+                 &type,
+                 &participants,
+                 status) != EOF)
+    {
+        printf("\nStudent ID   : %d", sid);
+        printf("\nEvent Name   : %s", eventName);
+
+        switch(type)
+        {
+            case 1:
+                printf("\nEvent Type   : Cultural");
+                break;
+
+            case 2:
+                printf("\nEvent Type   : Sports");
+                break;
+
+            case 3:
+                printf("\nEvent Type   : Seminar");
+                break;
+
+            default:
+                printf("\nEvent Type   : Unknown");
+        }
+
+        printf("\nParticipants : %d", participants);
+        printf("\nStatus       : %s\n", status);
+    }
+
+    fclose(fp);
+}
+
+void admin_approve_event(int sid)
+{
+    FILE *fp;
+    FILE *temp;
+
+    int studentId;
+    char eventName[100];
+    int type;
+    int participants;
+    char status[20];
+
+    int choice;
+    int found = 0;
+
+    fp = fopen("events.txt", "r");
+    temp = fopen("temp.txt", "w");
+
+    if(fp == NULL)
+    {
+        printf("No Event Requests Found.\n");
+        return;
+    }
+
+    printf("\n1. Approve\n");
+    printf("2. Reject\n");
+    printf("Choose: ");
+    scanf("%d", &choice);
+
+    while(fscanf(fp, "%d %s %d %d %s",
+                 &studentId,
+                 eventName,
+                 &type,
+                 &participants,
+                 status) != EOF)
+    {
+        if(studentId == sid && strcmp(status, "Pending") == 0)
+        {
+            switch(choice)
+            {
+                case 1:
+                    fprintf(temp, "%d %s %d %d Approved\n",
+                            studentId, eventName, type, participants);
+
+                    printf("Event Approved Successfully.\n");
+                    found = 1;
+                    break;
+
+                case 2:
+                    fprintf(temp, "%d %s %d %d Rejected\n",
+                            studentId, eventName, type, participants);
+
+                    printf("Event Rejected.\n");
+                    found = 1;
+                    break;
+
+                default:
+                    fprintf(temp, "%d %s %d %d %s\n",
+                            studentId, eventName, type,
+                            participants, status);
+
+                    printf("Invalid Choice!\n");
+                    break;
+            }
+        }
+        else
+        {
+            fprintf(temp, "%d %s %d %d %s\n",
+                    studentId, eventName, type,
+                    participants, status);
+        }
+    }
+
+    fclose(fp);
+    fclose(temp);
+
+    remove("events.txt");
+    rename("temp.txt", "events.txt");
+
+    if(found == 0)
+    {
+        printf("No Pending Request Found for Student ID %d.\n", sid);
+    }
+}

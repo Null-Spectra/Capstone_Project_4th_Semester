@@ -226,7 +226,9 @@ void staff_update_complaint() {
 
 void admin_portal()
 {
-    int ch, sid, sub;
+    int ch;
+    int sid;
+    int eventChoice;
 
     while (1)
     {
@@ -238,14 +240,19 @@ void admin_portal()
         printf("4. Room Operations\n");
         printf("5. Fee Operations\n");
         printf("6. Register Staff\n");
-        printf("7. Guest Request Operations\n");
-        printf("8. Meal Request Operations\n");
-        printf("9. View Late Entry Logs\n");
-        printf("10. Executive Summary\n");
-        printf("11. Logout\n");
+        printf("7. Executive Summary\n");
+
+        printf("8. View Guest Requests\n");
+        printf("9. Approve Guest Request\n");
+        printf("10. View Meal Requests\n");
+        printf("11. Approve Meal Request\n");
+        printf("12. View Late Entries\n");
+        printf("13. Event Management\n");
+
+        printf("14. Logout\n");
 
         printf("Choice: ");
-        if (scanf("%d", &ch) != 1) break;
+        scanf("%d", &ch);
 
         switch(ch)
         {
@@ -274,42 +281,76 @@ void admin_portal()
                 break;
 
             case 7:
-                printf("\n--- Guest Request Operations ---\n");
-                printf("1. View Guest Requests\n");
-                printf("2. Approve Guest Request\n");
-                printf("Choice: ");
-                if (scanf("%d", &sub) == 1) {
-                    if (sub == 1) admin_view_guest_requests();
-                    else if (sub == 2) {
-                        printf("Enter Student ID to Approve: ");
-                        if (scanf("%d", &sid) == 1) admin_approve_guest(sid);
-                    }
-                }
-                break;
-
-            case 8:
-                printf("\n--- Meal Request Operations ---\n");
-                printf("1. View Meal Requests\n");
-                printf("2. Approve Meal Request\n");
-                printf("Choice: ");
-                if (scanf("%d", &sub) == 1) {
-                    if (sub == 1) admin_view_meal_requests();
-                    else if (sub == 2) {
-                        printf("Enter Student ID to Approve: ");
-                        if (scanf("%d", &sid) == 1) admin_approve_meal(sid);
-                    }
-                }
-                break;
-
-            case 9:
-                admin_view_late_entries();
-                break;
-
-            case 10:
                 admin_executive_summary();
                 break;
 
+            case 8:
+                admin_view_guest_requests();
+                break;
+
+            case 9:
+                printf("Enter Student ID: ");
+                scanf("%d", &sid);
+
+                admin_approve_guest(sid);
+                break;
+
+            case 10:
+                admin_view_meal_requests();
+                break;
+
             case 11:
+                printf("Enter Student ID: ");
+                scanf("%d", &sid);
+
+                admin_approve_meal(sid);
+                break;
+
+            case 12:
+                admin_view_late_entries();
+                break;
+
+            case 13:
+
+                while(1)
+                {
+                    printf("\n===== Event Management =====\n");
+                    printf("1. View Event Requests\n");
+                    printf("2. Approve/Reject Event\n");
+                    printf("3. Back\n");
+
+                    printf("Choice: ");
+                    scanf("%d", &eventChoice);
+
+                    switch(eventChoice)
+                    {
+                        case 1:
+                            admin_view_event_requests();
+                            break;
+
+                        case 2:
+                            printf("Enter Student ID: ");
+                            scanf("%d", &sid);
+
+                            admin_approve_event(sid);
+                            break;
+
+                        case 3:
+                            break;
+
+                        default:
+                            printf("Invalid Choice!\n");
+                    }
+
+                    if(eventChoice == 3)
+                        break;
+
+                    pause_term();
+                }
+
+                break;
+
+            case 14:
                 printf("Logging out...\n");
                 return;
 
@@ -342,8 +383,9 @@ void student_portal(int sid)
         printf("10. Meal Registration\n");
         printf("11. Check In\n");
         printf("12. Check Out\n");
+        printf("13. Event Request\n");
 
-        printf("13. Logout\n");
+        printf("14. Logout\n");
 
         printf("Choice: ");
         if (scanf("%d", &ch) != 1) break;
@@ -399,6 +441,10 @@ void student_portal(int sid)
                 break;
 
             case 13:
+                event_request(sid);
+                break;
+
+            case 14:
                 printf("Logging out...\n");
                 return;
 
