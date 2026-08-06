@@ -1,5 +1,6 @@
 #include "hira.h"
 #include "rafi.h"
+#include "prothoma.h"
 
 /* ============================================================================
  * Section 3: HIRA
@@ -14,7 +15,10 @@ void guest_register(int sid)
     char guestName[50];
     char relation[30];
 
-    printf("Enter Guest Name: ");
+    printf("\n=== Guest Registration ===\n");
+    show_available_seats_summary();
+
+    printf("\nEnter Guest Name: ");
     scanf("%s", guestName);
 
     printf("Enter Relation: ");
@@ -45,6 +49,7 @@ void admin_view_guest_requests()
     char guestName[50];
     char relation[30];
     char status[20];
+    int priority = 1;
 
     fp = fopen("guests.txt", "r");
 
@@ -54,15 +59,15 @@ void admin_view_guest_requests()
         return;
     }
 
-    printf("\n========== GUEST REQUESTS ==========\n");
-    printf("Student ID\tGuest\tRelation\tStatus\n");
-    printf("------------------------------------\n");
+    printf("\n========== GUEST REQUESTS (PRIORITY QUEUE - FCFS ORDER) ==========\n");
+    printf("Priority\tStudent ID\tGuest\tRelation\tStatus\n");
+    printf("--------------------------------------------------------------------\n");
 
     while(fscanf(fp, "%d %s %s %s",
                  &sid, guestName, relation, status) != EOF)
     {
-        printf("%d\t\t%s\t%s\t\t%s\n",
-               sid, guestName, relation, status);
+        printf("P-%d\t\t%d\t\t%s\t%s\t\t%s\n",
+               priority++, sid, guestName, relation, status);
     }
 
     fclose(fp);

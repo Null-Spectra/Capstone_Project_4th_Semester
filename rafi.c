@@ -484,11 +484,12 @@ void admin_portal()
         printf("13. View Late Entries\n");
         printf("14. Event Management\n");
         printf("15. Complaint Management\n");
+        printf("16. New Student Booking Requests\n");
 
-        printf("16. Logout\n");
+        printf("17. Logout\n");
 
         printf("Choice: ");
-        if (scanf("%d", &ch) != 1 || ch == 16) break;
+        if (scanf("%d", &ch) != 1 || ch == 17) break;
 
         switch(ch)
         {
@@ -618,6 +619,23 @@ void admin_portal()
                 break;
 
             case 16:
+                while(1) {
+                    clear_term();
+                    printf("\n===== New Student Booking Requests (Priority Queue) =====\n");
+                    printf("1. View Requests Queue (FCFS Order)\n");
+                    printf("2. Process / Approve Request\n");
+                    printf("3. Back\n");
+                    printf("Choice: ");
+                    int bchoice;
+                    if (scanf("%d", &bchoice) != 1 || bchoice == 3) break;
+                    if (bchoice == 1) admin_view_new_booking_requests_priority_queue();
+                    else if (bchoice == 2) admin_approve_new_booking_request_priority_queue();
+                    else printf("Invalid Choice!\n");
+                    pause_term();
+                }
+                break;
+
+            case 17:
                 printf("Logging out...\n");
                 return;
 
@@ -825,9 +843,10 @@ void provost_portal() {
         printf("10. View Meal Requests\n");
         printf("11. View Event Requests\n");
         printf("12. View Late Entry Logs\n");
-        printf("13. Logout\n");
+        printf("13. View New Student Booking Requests (FCFS Order)\n");
+        printf("14. Logout\n");
         printf("Choice: ");
-        if (scanf("%d", &ch) != 1 || ch == 13) break;
+        if (scanf("%d", &ch) != 1 || ch == 14) break;
 
         switch(ch) {
             case 1: admin_executive_summary(); break;
@@ -842,7 +861,8 @@ void provost_portal() {
             case 10: admin_view_meal_requests(); break;
             case 11: admin_view_event_requests(); break;
             case 12: admin_view_late_entries(); break;
-            case 13: printf("Logging out...\n"); return;
+            case 13: admin_view_new_booking_requests_priority_queue(); break;
+            case 14: printf("Logging out...\n"); return;
             default: printf("Invalid Choice!\n");
         }
         pause_term();
