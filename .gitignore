@@ -13,16 +13,7 @@ hostel_app.exe
 *.swp
 
 # Runtime database text files
-students.txt
-rooms.txt
-fees.txt
-complaints.txt
-transfers.txt
-slips.txt
-leave_requests.txt
-staff.txt
-new_booking_requests.txt
-temp.txt
+*.txt
 
 # Whitelist source files & docs
 !LICENSE
