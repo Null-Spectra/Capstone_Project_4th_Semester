@@ -255,8 +255,8 @@ void show_facilities_list() {
     printf(" 3. Round-the-Clock CCTV Security & Guarded Entry\n");
     printf(" 4. Pure Mineral Drinking Water Purifiers\n");
     printf(" 5. Modern Gymnasium & Indoor Games Recreation Center\n");
-    printf(" 🍲 6. Hygienic Dining Hall with Customized Meal Plans\n");
-    printf(" 🧺 7. Weekly Laundry & Daily Housekeeping\n");
-    printf(" 📚 8. Quiet Air-Conditioned Study Lounges\n");
+    printf(" 6. Hygienic Dining Hall with Customized Meal Plans\n");
+    printf(" 7. Weekly Laundry & Daily Housekeeping\n");
+    printf(" 8. Quiet Air-Conditioned Study Lounges\n");
     printf("==================================================\n");
 }
