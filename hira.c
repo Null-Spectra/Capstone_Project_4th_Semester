@@ -2,11 +2,17 @@
 #include "rafi.h"
 #include "prothoma.h"
 
+
 /* ============================================================================
- * Section 3: HIRA
+ * HIRA
  * ============================================================================ */
 
-/*GUEST MANAGEMENT - STUDENT*/
+
+/* ============================================================================
+ * GUEST MANAGEMENT
+ * ============================================================================ */
+
+/* GUEST MANAGEMENT - STUDENT */
 
 void guest_register(int sid)
 {
@@ -38,7 +44,8 @@ void guest_register(int sid)
     printf("Guest Request Submitted Successfully.\n");
 }
 
-/*GUEST MANAGEMENT - ADMIN*/
+
+/* GUEST MANAGEMENT - ADMIN */
 
 void admin_view_guest_requests()
 {
@@ -71,8 +78,8 @@ void admin_view_guest_requests()
     fclose(fp);
 }
 
-/*ADMIN APPROVE GUEST
- */
+
+/* ADMIN APPROVE GUEST */
 
 void admin_approve_guest(int sid)
 {
@@ -121,15 +128,90 @@ void admin_approve_guest(int sid)
         printf("Student ID Not Found.\n");
 }
 
-/*MEAL MANAGEMENT - STUDENT*/
+
+/* GUEST MANAGEMENT - STUDENT MENU */
+
+void guest_management(int sid)
+{
+    int choice;
+
+    while (1)
+    {
+        printf("\n===== Guest Management =====\n");
+        printf("1. Register Guest\n");
+        printf("2. Back\n");
+        printf("Choice: ");
+        scanf("%d", &choice);
+
+        switch (choice)
+        {
+            case 1:
+                guest_register(sid);
+                break;
+
+            case 2:
+                return;
+
+            default:
+                printf("Invalid Choice!\n");
+        }
+    }
+}
+
+
+/* GUEST MANAGEMENT - ADMIN MENU */
+
+void admin_guest_management()
+{
+    int choice;
+    int sid;
+
+    while (1)
+    {
+        printf("\n===== Guest Management =====\n");
+        printf("1. View Guest Requests\n");
+        printf("2. Approve Guest Request\n");
+        printf("3. Back\n");
+        printf("Choice: ");
+        scanf("%d", &choice);
+
+        switch (choice)
+        {
+            case 1:
+                admin_view_guest_requests();
+                break;
+
+            case 2:
+                printf("Enter Student ID: ");
+                scanf("%d", &sid);
+                admin_approve_guest(sid);
+                break;
+
+            case 3:
+                return;
+
+            default:
+                printf("Invalid Choice!\n");
+        }
+    }
+}
+
+
+/* ============================================================================
+ * MEAL MANAGEMENT
+ * ============================================================================ */
+
+/* MEAL MANAGEMENT - STUDENT */
 
 void meal_register(int sid)
 {
     FILE *fp;
     int days;
     int delivery;
-    int room;
-    int deliveryCharge;
+    int room = 0;
+    int deliveryCharge = 0;
+
+    printf("\n=== Meal Registration ===\n");
 
     printf("Enter Number of Meal Days: ");
     scanf("%d", &days);
@@ -142,7 +224,7 @@ void meal_register(int sid)
 
     printf("\n1. Dining Hall\n");
     printf("2. Room Delivery\n");
-    printf("Choose Meal Delivery: ");
+    printf("Choose Meal Delivery Type: ");
     scanf("%d", &delivery);
 
     if (delivery == 2)
@@ -150,26 +232,13 @@ void meal_register(int sid)
         printf("Enter Room Number: ");
         scanf("%d", &room);
 
-        if (room <= 0)
-        {
-            printf("Invalid Room Number!\n");
-            return;
-        }
+        deliveryCharge = 50;
     }
     else if (delivery != 1)
     {
         printf("Invalid Choice!\n");
         return;
     }
-    else
-    {
-        room = 0;
-    }
-
-    if (delivery == 2)
-        deliveryCharge = 50;
-    else
-        deliveryCharge = 0;
 
     fp = fopen("meals.txt", "a");
 
@@ -179,14 +248,16 @@ void meal_register(int sid)
         return;
     }
 
-    fprintf(fp, "%d %d %d %d %d Pending\n", sid, days, delivery, room, deliveryCharge);
+    fprintf(fp, "%d %d %d %d %d Pending\n",
+            sid, days, delivery, room, deliveryCharge);
 
     fclose(fp);
 
     printf("Meal Request Submitted Successfully.\n");
 }
 
-/*MEAL MANAGEMENT - ADMIN*/
+
+/* MEAL MANAGEMENT - ADMIN */
 
 void admin_view_meal_requests()
 {
@@ -204,34 +275,21 @@ void admin_view_meal_requests()
 
     printf("\n========== MEAL REQUESTS ==========\n");
     printf("Student ID\tMeal Days\tDelivery\tRoom\tCharge\tStatus\n");
-    printf("------------------------------------------------------\n");
+    printf("----------------------------------------------------------------\n");
 
     while (fscanf(fp, "%d %d %d %d %d %s",
-                  &sid, &days, &delivery, &room, &deliveryCharge, status) != EOF)
+                  &sid, &days, &delivery, &room,
+                  &deliveryCharge, status) != EOF)
     {
-        printf("%d\t\t%d\t\t", sid, days);
-
-        switch (delivery)
-        {
-        case 1:
-            printf("Dining Hall\t-");
-            break;
-
-        case 2:
-            printf("Room Delivery\t%d", room);
-            break;
-
-        default:
-            printf("Unknown\t\t-");
-        }
-
-        printf("\t%d\t%s\n", deliveryCharge, status);
+        printf("%d\t\t%d\t\t%d\t\t%d\t%d\t%s\n",
+               sid, days, delivery, room, deliveryCharge, status);
     }
 
     fclose(fp);
 }
 
-/*ADMIN APPROVE MEAL*/
+
+/* ADMIN APPROVE MEAL */
 
 void admin_approve_meal(int sid)
 {
@@ -250,19 +308,22 @@ void admin_approve_meal(int sid)
     }
 
     while (fscanf(fp, "%d %d %d %d %d %s",
-                  &studentId, &days, &delivery, &room, &deliveryCharge, status) != EOF)
+                  &studentId, &days, &delivery,
+                  &room, &deliveryCharge, status) != EOF)
     {
-        if (studentId == sid && strcmp(status, "Pending") == 0)
+        if (studentId == sid)
         {
             fprintf(temp, "%d %d %d %d %d Approved\n",
-                    studentId, days, delivery, room, deliveryCharge);
+                    studentId, days, delivery,
+                    room, deliveryCharge);
 
             found = 1;
         }
         else
         {
             fprintf(temp, "%d %d %d %d %d %s\n",
-                    studentId, days, delivery, room, deliveryCharge, status);
+                    studentId, days, delivery,
+                    room, deliveryCharge, status);
         }
     }
 
@@ -278,109 +339,231 @@ void admin_approve_meal(int sid)
         printf("Student ID Not Found.\n");
 }
 
-/*MEAL MANAGEMENT - EXTRA FEATURES*/
+
+/* ROOM DELIVERY REQUESTS */
+
+void admin_view_room_delivery_requests()
+{
+    FILE *fp;
+    int sid, days, delivery, room, deliveryCharge;
+    char status[20];
+    int found = 0;
+
+    fp = fopen("meals.txt", "r");
+
+    if (fp == NULL)
+    {
+        printf("No Room Delivery Requests Found.\n");
+        return;
+    }
+
+    printf("\n========== ROOM DELIVERY REQUESTS ==========\n");
+
+    while (fscanf(fp, "%d %d %d %d %d %s",
+                  &sid, &days, &delivery,
+                  &room, &deliveryCharge, status) != EOF)
+    {
+        if (delivery == 2)
+        {
+            printf("Student ID: %d | Days: %d | Room: %d | Delivery Charge: %d | Status: %s\n",
+                   sid, days, room, deliveryCharge, status);
+
+            found = 1;
+        }
+    }
+
+    fclose(fp);
+
+    if (found == 0)
+        printf("No Room Delivery Requests Found.\n");
+}
+
+/* ============================================================================ 
+ * WEEKLY MEAL CHART
+ * ============================================================================ */
+
+/* ADMIN MEAL CHART */
 
 void admin_meal_chart()
 {
-    FILE *fp, *temp;
+    FILE *fp;
+    FILE *temp;
     int choice;
+
     char day[20];
     char breakfast[50];
     char lunch[50];
     char dinner[50];
-    char oldDay[20];
-    char oldBreakfast[50];
-    char oldLunch[50];
-    char oldDinner[50];
-    int found;
 
     while (1)
     {
         printf("\n===== Weekly Meal Chart =====\n");
-        printf("1. Create / Update Chart\n");
-        printf("2. Delete Chart\n");
-        printf("3. View Chart\n");
+        printf("1. Create / Add Meal Chart\n");
+        printf("2. Update Meal Chart\n");
+        printf("3. Delete Meal Chart\n");
         printf("4. Back\n");
         printf("Choice: ");
-        scanf("%d", &choice);
+        scanf(" %d", &choice);
 
-        switch (choice)
+        if (choice == 1)
         {
-        case 1:
-            printf("Enter Day: ");
-            scanf("%s", day);
-            printf("Breakfast: ");
-            scanf("%s", breakfast);
-            printf("Lunch: ");
-            scanf("%s", lunch);
-            printf("Dinner: ");
-            scanf("%s", dinner);
+            fp = fopen("meal_chart.txt", "a");
 
+            if (fp == NULL)
+            {
+                printf("File Error!\n");
+                continue;
+            }
+
+            while (1)
+            {
+                printf("\n========== Add Meal Chart ==========\n");
+
+                printf("Enter Day (or type Back to return): ");
+                scanf(" %19s", day);
+
+                if (strcmp(day, "Back") == 0 ||
+                    strcmp(day, "back") == 0)
+                {
+                    break;
+                }
+
+                printf("Enter Breakfast: ");
+                scanf(" %49s", breakfast);
+
+                printf("Enter Lunch: ");
+                scanf(" %49s", lunch);
+
+                printf("Enter Dinner: ");
+                scanf(" %49s", dinner);
+
+                fprintf(fp, "%s %s %s %s\n",
+                        day, breakfast, lunch, dinner);
+
+                printf("Meal Chart Added Successfully.\n");
+            }
+
+            fclose(fp);
+        }
+
+        else if (choice == 2)
+        {
             fp = fopen("meal_chart.txt", "r");
             temp = fopen("temp.txt", "w");
-            found = 0;
 
-            if (temp == NULL)
+            if (fp == NULL)
             {
-                if (fp != NULL)
-                    fclose(fp);
-                printf("File Error!\n");
-                break;
+                printf("No Meal Chart Found.\n");
+                continue;
             }
 
-            if (fp != NULL)
+            printf("Enter Day to Update: ");
+            scanf(" %19s", day);
+
+            printf("Enter New Breakfast: ");
+            scanf(" %49s", breakfast);
+
+            printf("Enter New Lunch: ");
+            scanf(" %49s", lunch);
+
+            printf("Enter New Dinner: ");
+            scanf(" %49s", dinner);
+
+            char oldDay[20];
+            char oldBreakfast[50];
+            char oldLunch[50];
+            char oldDinner[50];
+
+            while (fscanf(fp, "%19s %49s %49s %49s",
+                          oldDay,
+                          oldBreakfast,
+                          oldLunch,
+                          oldDinner) != EOF)
             {
-                while (fscanf(fp, "%s %s %s %s", oldDay, oldBreakfast,
-                              oldLunch, oldDinner) != EOF)
+                if (strcmp(oldDay, day) == 0)
                 {
-                    if (strcmp(oldDay, day) == 0)
-                    {
-                        fprintf(temp, "%s %s %s %s\n", day, breakfast,
-                                lunch, dinner);
-                        found = 1;
-                    }
-                    else
-                    {
-                        fprintf(temp, "%s %s %s %s\n", oldDay,
-                                oldBreakfast, oldLunch, oldDinner);
-                    }
+                    fprintf(temp, "%s %s %s %s\n",
+                            day,
+                            breakfast,
+                            lunch,
+                            dinner);
                 }
-                fclose(fp);
+                else
+                {
+                    fprintf(temp, "%s %s %s %s\n",
+                            oldDay,
+                            oldBreakfast,
+                            oldLunch,
+                            oldDinner);
+                }
             }
 
-            if (found == 0)
-                fprintf(temp, "%s %s %s %s\n", day, breakfast,
-                        lunch, dinner);
-
+            fclose(fp);
             fclose(temp);
+
             remove("meal_chart.txt");
             rename("temp.txt", "meal_chart.txt");
-            printf("Meal Chart Saved Successfully.\n");
-            break;
 
-        case 2:
-            fp = fopen("meal_chart.txt", "w");
-            if (fp != NULL)
+            printf("Meal Chart Updated Successfully.\n");
+        }
+
+        else if (choice == 3)
+        {
+            fp = fopen("meal_chart.txt", "r");
+            temp = fopen("temp.txt", "w");
+
+            if (fp == NULL)
             {
-                fclose(fp);
-                printf("Meal Chart Deleted.\n");
+                printf("No Meal Chart Found.\n");
+                continue;
             }
-            else
-                printf("File Error!\n");
-            break;
 
-        case 3:
-            student_view_meal_chart();
-            break;
+            printf("Enter Day to Delete: ");
+            scanf(" %19s", day);
 
-        case 4:
+            char oldDay[20];
+            char oldBreakfast[50];
+            char oldLunch[50];
+            char oldDinner[50];
+
+            while (fscanf(fp, "%19s %49s %49s %49s",
+                          oldDay,
+                          oldBreakfast,
+                          oldLunch,
+                          oldDinner) != EOF)
+            {
+                if (strcmp(oldDay, day) != 0)
+                {
+                    fprintf(temp, "%s %s %s %s\n",
+                            oldDay,
+                            oldBreakfast,
+                            oldLunch,
+                            oldDinner);
+                }
+            }
+
+            fclose(fp);
+            fclose(temp);
+
+            remove("meal_chart.txt");
+            rename("temp.txt", "meal_chart.txt");
+
+            printf("Meal Chart Deleted Successfully.\n");
+        }
+
+        else if (choice == 4)
+        {
             return;
+        }
 
-        default:
+        else
+        {
             printf("Invalid Choice!\n");
         }
     }
 }
+
+/* STUDENT VIEW MEAL CHART */
 
 void student_view_meal_chart()
 {
@@ -389,6 +572,7 @@ void student_view_meal_chart()
     char breakfast[50];
     char lunch[50];
     char dinner[50];
+    int found = 0;
 
     fp = fopen("meal_chart.txt", "r");
 
@@ -399,40 +583,59 @@ void student_view_meal_chart()
     }
 
     printf("\n========== WEEKLY MEAL CHART ==========\n");
+    printf("Day\t\tBreakfast\tLunch\t\tDinner\n");
+    printf("----------------------------------------------------------\n");
 
-    while (fscanf(fp, "%s %s %s %s", day, breakfast, lunch, dinner) != EOF)
+    while (fscanf(fp, "%s %s %s %s",
+                  day, breakfast, lunch, dinner) != EOF)
     {
-        printf("\nDay       : %s", day);
-        printf("\nBreakfast : %s", breakfast);
-        printf("\nLunch     : %s", lunch);
-        printf("\nDinner    : %s\n", dinner);
+        printf("%s\t\t%s\t\t%s\t\t%s\n",
+               day, breakfast, lunch, dinner);
+
+        found = 1;
     }
 
     fclose(fp);
+
+    if (found == 0)
+        printf("No Meal Chart Available.\n");
 }
+
+
+/* ============================================================================
+ * DAILY MEAL PAYMENT
+ * ============================================================================ */
 
 void meal_daily_payment(int sid)
 {
     FILE *fp;
     int studentId;
+
     char date[20];
     char mealType[20];
     char amount[20];
     char status[20];
     char paymentTime[20];
+
     char oldDate[20];
     char oldMealType[20];
     char oldAmount[20];
     char oldStatus[20];
     char oldTime[20];
+
     int duplicate = 0;
 
-    printf("Enter Date: ");
+    printf("\n=== Daily Meal Payment ===\n");
+
+    printf("Enter Date (dd-mm-yyyy): ");
     scanf("%s", date);
+
     printf("Enter Meal Type (Breakfast/Lunch/Dinner): ");
     scanf("%s", mealType);
+
     printf("Enter Amount: ");
     scanf("%s", amount);
+
     printf("Enter Payment Time: ");
     scanf("%s", paymentTime);
 
@@ -440,15 +643,22 @@ void meal_daily_payment(int sid)
 
     if (fp != NULL)
     {
-        while (fscanf(fp, "%d %s %s %s %s %s", &studentId, oldDate,
-                      oldMealType, oldAmount, oldStatus, oldTime) != EOF)
+        while (fscanf(fp, "%d %s %s %s %s %s",
+                      &studentId,
+                      oldDate,
+                      oldMealType,
+                      oldAmount,
+                      oldStatus,
+                      oldTime) != EOF)
         {
-            if (studentId == sid && strcmp(oldDate, date) == 0 &&
+            if (studentId == sid &&
+                strcmp(oldDate, date) == 0 &&
                 strcmp(oldMealType, mealType) == 0)
             {
                 duplicate = 1;
             }
         }
+
         fclose(fp);
     }
 
@@ -467,23 +677,45 @@ void meal_daily_payment(int sid)
     }
 
     strcpy(status, "Paid");
-    fprintf(fp, "%d %s %s %s %s %s\n", sid, date, mealType, amount,
-            status, paymentTime);
+
+    fprintf(fp, "%d %s %s %s %s %s\n",
+            sid,
+            date,
+            mealType,
+            amount,
+            status,
+            paymentTime);
+
     fclose(fp);
 
     printf("Payment Successful. Status: Paid.\n");
 }
 
+
+/* STUDENT RECEIVE MEAL */
+
 void student_receive_meal(int sid)
 {
     FILE *fp;
+
     int studentId;
-    char date[20], mealType[20], amount[20], status[20], paymentTime[20];
-    char inputDate[20], inputMeal[20];
+
+    char date[20];
+    char mealType[20];
+    char amount[20];
+    char status[20];
+    char paymentTime[20];
+
+    char inputDate[20];
+    char inputMeal[20];
+
     int paid = 0;
 
-    printf("Enter Date: ");
+    printf("\n=== Receive Meal ===\n");
+
+    printf("Enter Date (dd-mm-yyyy): ");
     scanf("%s", inputDate);
+
     printf("Enter Meal Type (Breakfast/Lunch/Dinner): ");
     scanf("%s", inputMeal);
 
@@ -491,15 +723,23 @@ void student_receive_meal(int sid)
 
     if (fp != NULL)
     {
-        while (fscanf(fp, "%d %s %s %s %s %s", &studentId, date, mealType,
-                      amount, status, paymentTime) != EOF)
+        while (fscanf(fp, "%d %s %s %s %s %s",
+                      &studentId,
+                      date,
+                      mealType,
+                      amount,
+                      status,
+                      paymentTime) != EOF)
         {
-            if (studentId == sid && strcmp(date, inputDate) == 0 &&
-                strcmp(mealType, inputMeal) == 0 && strcmp(status, "Paid") == 0)
+            if (studentId == sid &&
+                strcmp(date, inputDate) == 0 &&
+                strcmp(mealType, inputMeal) == 0 &&
+                strcmp(status, "Paid") == 0)
             {
                 paid = 1;
             }
         }
+
         fclose(fp);
     }
 
@@ -509,11 +749,20 @@ void student_receive_meal(int sid)
         printf("Payment Not Found. You cannot receive this meal today.\n");
 }
 
+
+/* ADMIN VIEW DAILY PAYMENTS */
+
 void admin_view_daily_payments()
 {
     FILE *fp;
+
     int sid;
-    char date[20], mealType[20], amount[20], status[20], paymentTime[20];
+
+    char date[20];
+    char mealType[20];
+    char amount[20];
+    char status[20];
+    char paymentTime[20];
 
     fp = fopen("daily_payments.txt", "r");
 
@@ -523,42 +772,72 @@ void admin_view_daily_payments()
         return;
     }
 
-    printf("\n========== DAILY MEAL PAYMENTS ==========\n");
+    printf("\n========== DAILY PAYMENT RECORDS ==========\n");
 
-    while (fscanf(fp, "%d %s %s %s %s %s", &sid, date, mealType,
-                  amount, status, paymentTime) != EOF)
+    while (fscanf(fp, "%d %s %s %s %s %s",
+                  &sid,
+                  date,
+                  mealType,
+                  amount,
+                  status,
+                  paymentTime) != EOF)
     {
-        printf("Student ID: %d | Date: %s | Meal: %s | Amount: %s | Status: %s | Payment Time: %s\n",
-               sid, date, mealType, amount, status, paymentTime);
+        printf("Student ID: %d | Date: %s | Meal: %s | Amount: %s | Status: %s | Time: %s\n",
+               sid,
+               date,
+               mealType,
+               amount,
+               status,
+               paymentTime);
     }
 
     fclose(fp);
 }
 
+
+/* ADMIN VIEW PAYMENT HISTORY */
+
 void admin_view_meal_payment_history(int sid)
 {
     FILE *fp;
+
     int studentId;
-    char date[20], mealType[20], amount[20], status[20], paymentTime[20];
+
+    char date[20];
+    char mealType[20];
+    char amount[20];
+    char status[20];
+    char paymentTime[20];
+
     int found = 0;
 
     fp = fopen("daily_payments.txt", "r");
 
     if (fp == NULL)
     {
-        printf("No Daily Payment Records Found.\n");
+        printf("No Payment Records Found.\n");
         return;
     }
 
     printf("\n========== PAYMENT HISTORY ==========\n");
 
-    while (fscanf(fp, "%d %s %s %s %s %s", &studentId, date, mealType,
-                  amount, status, paymentTime) != EOF)
+    while (fscanf(fp, "%d %s %s %s %s %s",
+                  &studentId,
+                  date,
+                  mealType,
+                  amount,
+                  status,
+                  paymentTime) != EOF)
     {
         if (studentId == sid)
         {
-            printf("Date: %s | Meal: %s | Amount: %s | Status: %s | Payment Time: %s\n",
-                   date, mealType, amount, status, paymentTime);
+            printf("Date: %s | Meal: %s | Amount: %s | Status: %s | Time: %s\n",
+                   date,
+                   mealType,
+                   amount,
+                   status,
+                   paymentTime);
+
             found = 1;
         }
     }
@@ -566,44 +845,129 @@ void admin_view_meal_payment_history(int sid)
     fclose(fp);
 
     if (found == 0)
-        printf("No Payment History Found.\n");
+        printf("No Payment History Found for Student ID %d.\n", sid);
 }
 
-void admin_view_room_delivery_requests()
+
+/* STUDENT MEAL MANAGEMENT */
+
+void student_meal_management(int sid)
 {
-    FILE *fp;
-    int sid, days, delivery, room, deliveryCharge;
-    char status[20];
+    int choice;
 
-    fp = fopen("meals.txt", "r");
-
-    if (fp == NULL)
+    while (1)
     {
-        printf("No Meal Requests Found.\n");
-        return;
-    }
+        printf("\n===== Student Meal Management =====\n");
+        printf("1. Register Meal\n");
+        printf("2. View Meal Chart\n");
+        printf("3. Make Daily Meal Payment\n");
+        printf("4. Receive Meal\n");
+        printf("5. Back\n");
 
-    printf("\n========== ROOM DELIVERY REQUESTS ==========\n");
+        printf("Choice: ");
+        scanf("%d", &choice);
 
-    while (fscanf(fp, "%d %d %d %d %d %s", &sid, &days, &delivery,
-                  &room, &deliveryCharge, status) != EOF)
-    {
-        if (delivery == 2)
+        switch (choice)
         {
-            printf("Student ID: %d | Days: %d | Room: %d | Delivery Charge: %d | Status: %s\n",
-                   sid, days, room, deliveryCharge, status);
+            case 1:
+                meal_register(sid);
+                break;
+
+            case 2:
+                student_view_meal_chart();
+                break;
+
+            case 3:
+                meal_daily_payment(sid);
+                break;
+
+            case 4:
+                student_receive_meal(sid);
+                break;
+
+            case 5:
+                return;
+
+            default:
+                printf("Invalid Choice!\n");
         }
     }
-
-    fclose(fp);
 }
 
-/*TIME & ENTRY MANAGEMENT - STUDENT CHECK IN*/
+
+/* ADMIN MEAL MANAGEMENT */
+
+void admin_meal_management()
+{
+    int choice;
+    int sid;
+
+    while (1)
+    {
+        printf("\n===== Admin Meal Management =====\n");
+        printf("1. View Meal Requests\n");
+        printf("2. Approve Meal Request\n");
+        printf("3. Meal Chart\n");
+        printf("4. View Room Delivery Requests\n");
+        printf("5. View Daily Payments\n");
+        printf("6. View Student Payment History\n");
+        printf("7. Back\n");
+
+        printf("Choice: ");
+        scanf("%d", &choice);
+
+        switch (choice)
+        {
+            case 1:
+                admin_view_meal_requests();
+                break;
+
+            case 2:
+                printf("Enter Student ID: ");
+                scanf("%d", &sid);
+                admin_approve_meal(sid);
+                break;
+
+            case 3:
+                admin_meal_chart();
+                break;
+
+            case 4:
+                admin_view_room_delivery_requests();
+                break;
+
+            case 5:
+                admin_view_daily_payments();
+                break;
+
+            case 6:
+                printf("Enter Student ID: ");
+                scanf("%d", &sid);
+                admin_view_meal_payment_history(sid);
+                break;
+
+            case 7:
+                return;
+
+            default:
+                printf("Invalid Choice!\n");
+        }
+    }
+}
+
+
+/* ============================================================================
+ * TIME & ENTRY MANAGEMENT
+ * ============================================================================ */
+
+/* STUDENT CHECK IN */
 
 void student_checkin(int sid)
 {
     FILE *fp;
+
     int hour;
+
     char studentName[50];
     char gender[20];
     char hallName[50];
@@ -611,10 +975,13 @@ void student_checkin(int sid)
 
     printf("Enter Student Name: ");
     scanf("%s", studentName);
+
     printf("Enter Gender (Male/Female): ");
     scanf("%s", gender);
+
     printf("Enter Hall Name: ");
     scanf("%s", hallName);
+
     printf("Enter Current Hour (0-23): ");
     scanf("%d", &hour);
 
@@ -624,14 +991,16 @@ void student_checkin(int sid)
         return;
     }
 
-    if (strcmp(gender, "Female") == 0 || strcmp(gender, "female") == 0)
+    if (strcmp(gender, "Female") == 0 ||
+        strcmp(gender, "female") == 0)
     {
         if (hour >= 19)
             strcpy(status, "Late");
         else
             strcpy(status, "OnTime");
     }
-    else if (strcmp(gender, "Male") == 0 || strcmp(gender, "male") == 0)
+    else if (strcmp(gender, "Male") == 0 ||
+             strcmp(gender, "male") == 0)
     {
         if (hour >= 22)
             strcpy(status, "Late");
@@ -645,14 +1014,21 @@ void student_checkin(int sid)
     }
 
     fp = fopen("checkin.txt", "a");
+
     if (fp == NULL)
     {
         printf("File Error!\n");
         return;
     }
 
-    fprintf(fp, "%d %s %s %s %d %s\n", sid, studentName, gender,
-            hallName, hour, status);
+    fprintf(fp, "%d %s %s %s %d %s\n",
+            sid,
+            studentName,
+            gender,
+            hallName,
+            hour,
+            status);
+
     fclose(fp);
 
     if (strcmp(status, "Late") == 0)
@@ -661,7 +1037,8 @@ void student_checkin(int sid)
         printf("Check-in Successful.\n");
 }
 
-/*TIME & ENTRY MANAGEMENT - STUDENT CHECK OUT*/
+
+/* STUDENT CHECK OUT */
 
 void student_checkout(int sid)
 {
@@ -678,6 +1055,7 @@ void student_checkout(int sid)
     }
 
     fp = fopen("checkout.txt", "a");
+
     if (fp == NULL)
     {
         printf("File Error!\n");
@@ -685,19 +1063,31 @@ void student_checkout(int sid)
     }
 
     fprintf(fp, "%d %d\n", sid, hour);
+
     fclose(fp);
+
     printf("Check-out Successful.\n");
 }
 
-/*TIME & ENTRY MANAGEMENT - ADMIN*/
+
+/* ADMIN VIEW LATE ENTRIES */
 
 void admin_view_late_entries()
 {
     FILE *fp;
-    int sid, hour;
-    char studentName[50], gender[20], hallName[50], status[20];
+
+    int sid;
+    int hour;
+
+    char studentName[50];
+    char gender[20];
+    char hallName[50];
+    char status[20];
+
+    int found = 0;
 
     fp = fopen("checkin.txt", "r");
+
     if (fp == NULL)
     {
         printf("No Check-in Records Found.\n");
@@ -706,456 +1096,111 @@ void admin_view_late_entries()
 
     printf("\n========== LATE ENTRIES ==========\n");
 
-    while (fscanf(fp, "%d %s %s %s %d %s", &sid, studentName, gender,
-                  hallName, &hour, status) != EOF)
+    while (fscanf(fp, "%d %s %s %s %d %s",
+                  &sid,
+                  studentName,
+                  gender,
+                  hallName,
+                  &hour,
+                  status) != EOF)
     {
         if (strcmp(status, "Late") == 0)
         {
             printf("Student ID: %d | Name: %s | Gender: %s | Hall: %s | Time: %d:00 | Status: Late\n",
-                   sid, studentName, gender, hallName, hour);
-        }
-    }
-    fclose(fp);
-}
+                   sid,
+                   studentName,
+                   gender,
+                   hallName,
+                   hour);
 
-/*LOST & FOUND*/
-
-void report_lost_item(int sid)
-{
-    FILE *fp;
-    char studentName[50], itemName[50], description[100], date[20], location[50];
-
-    printf("\n===== Report Lost Item =====\n");
-    printf("Enter Student Name: ");
-    scanf("%s", studentName);
-    printf("Enter Item Name: ");
-    scanf("%s", itemName);
-    printf("Enter Item Description: ");
-    scanf("%s", description);
-    printf("Enter Date: ");
-    scanf("%s", date);
-    printf("Enter Lost Location: ");
-    scanf("%s", location);
-
-    fp = fopen("lost_items.txt", "a");
-    if (fp == NULL)
-    {
-        printf("File Error!\n");
-        return;
-    }
-
-    fprintf(fp, "%d %s %s %s %s %s Lost\n", sid, studentName, itemName,
-            description, date, location);
-    fclose(fp);
-    printf("Lost Item Reported Successfully.\n");
-}
-
-void report_found_item(int finderId)
-{
-    FILE *fp;
-    char itemName[50], description[100], date[20], location[50];
-
-    printf("\n===== Report Found Item =====\n");
-    printf("Enter Item Name: ");
-    scanf("%s", itemName);
-    printf("Enter Item Description: ");
-    scanf("%s", description);
-    printf("Enter Date: ");
-    scanf("%s", date);
-    printf("Enter Found Location: ");
-    scanf("%s", location);
-
-    fp = fopen("found_items.txt", "a");
-    if (fp == NULL)
-    {
-        printf("File Error!\n");
-        return;
-    }
-
-    fprintf(fp, "%d %s %s %s %s Found\n", finderId, itemName,
-            description, date, location);
-    fclose(fp);
-    printf("Found Item Reported Successfully.\n");
-}
-
-void check_item_match()
-{
-    FILE *lost, *found;
-    int lostId, foundId;
-    char lostItem[50], lostDescription[100], lostDate[20], lostLocation[50], lostStatus[20];
-    char foundItem[50], foundDescription[100], foundDate[20], foundLocation[50], foundStatus[20];
-    int match = 0;
-
-    lost = fopen("lost_items.txt", "r");
-    found = fopen("found_items.txt", "r");
-
-    if (lost == NULL || found == NULL)
-    {
-        if (lost != NULL)
-            fclose(lost);
-        if (found != NULL)
-            fclose(found);
-        return;
-    }
-
-    while (fscanf(lost, "%d %s %s %s %s %s %s", &lostId, lostItem,
-                  lostDescription, lostDate, lostLocation, lostStatus) != EOF)
-    {
-        while (fscanf(found, "%d %s %s %s %s %s", &foundId, foundItem,
-                      foundDescription, foundDate, foundLocation, foundStatus) != EOF)
-        {
-            if (strcmp(lostItem, foundItem) == 0 &&
-                strcmp(lostDescription, foundDescription) == 0)
-            {
-                printf("Possible Match Found.\n");
-                match = 1;
-            }
-        }
-        rewind(found);
-    }
-
-    fclose(lost);
-    fclose(found);
-
-    if (match == 0)
-        printf("No Possible Match Found.\n");
-}
-
-void search_item()
-{
-    FILE *fp;
-    int id;
-    char itemName[50], description[100], date[20], location[50], status[20];
-    char searchName[50];
-    int found = 0;
-
-    printf("Enter Item Name to Search: ");
-    scanf("%s", searchName);
-
-    fp = fopen("lost_items.txt", "r");
-    if (fp != NULL)
-    {
-        while (fscanf(fp, "%d %s %s %s %s %s", &id, itemName, description,
-                      date, location, status) != EOF)
-        {
-            if (strcmp(itemName, searchName) == 0)
-            {
-                printf("Lost Item: ID %d | Item %s | Description %s | Date %s | Location %s | Status %s\n",
-                       id, itemName, description, date, location, status);
-                found = 1;
-            }
-        }
-        fclose(fp);
-    }
-
-    fp = fopen("found_items.txt", "r");
-    if (fp != NULL)
-    {
-        while (fscanf(fp, "%d %s %s %s %s %s", &id, itemName, description,
-                      date, location, status) != EOF)
-        {
-            if (strcmp(itemName, searchName) == 0)
-            {
-                printf("Found Item: ID %d | Item %s | Description %s | Date %s | Location %s | Status %s\n",
-                       id, itemName, description, date, location, status);
-                found = 1;
-            }
-        }
-        fclose(fp);
-    }
-
-    if (found == 0)
-        printf("No Item Found.\n");
-
-    check_item_match();
-}
-
-void admin_view_lost_items()
-{
-    FILE *fp;
-    int id;
-    char studentName[50], itemName[50], description[100], date[20], location[50], status[20];
-
-    fp = fopen("lost_items.txt", "r");
-    if (fp == NULL)
-    {
-        printf("No Lost Items Found.\n");
-        return;
-    }
-
-    printf("\n========== LOST ITEMS ==========\n");
-    while (fscanf(fp, "%d %s %s %s %s %s %s", &id, studentName, itemName,
-                  description, date, location, status) != EOF)
-    {
-        printf("Student ID: %d | Name: %s | Item: %s | Description: %s | Date: %s | Location: %s | Status: %s\n",
-               id, studentName, itemName, description, date, location, status);
-    }
-    fclose(fp);
-}
-
-void admin_view_found_items()
-{
-    FILE *fp;
-    int id;
-    char itemName[50], description[100], date[20], location[50], status[20];
-
-    fp = fopen("found_items.txt", "r");
-    if (fp == NULL)
-    {
-        printf("No Found Items Found.\n");
-        return;
-    }
-
-    printf("\n========== FOUND ITEMS ==========\n");
-    while (fscanf(fp, "%d %s %s %s %s %s", &id, itemName, description,
-                  date, location, status) != EOF)
-    {
-        printf("Finder ID: %d | Item: %s | Description: %s | Date: %s | Location: %s | Status: %s\n",
-               id, itemName, description, date, location, status);
-    }
-    fclose(fp);
-}
-
-void admin_return_lost_item(int sid)
-{
-    FILE *fp, *temp;
-    int studentId;
-    char studentName[50], itemName[50], description[100], date[20], location[50], status[20];
-    int found = 0;
-
-    fp = fopen("lost_items.txt", "r");
-    temp = fopen("temp.txt", "w");
-
-    if (fp == NULL)
-    {
-        if (temp != NULL)
-            fclose(temp);
-        printf("No Lost Items Found.\n");
-        return;
-    }
-
-    while (fscanf(fp, "%d %s %s %s %s %s %s", &studentId, studentName,
-                  itemName, description, date, location, status) != EOF)
-    {
-        if (studentId == sid && strcmp(status, "Lost") == 0)
-        {
-            fprintf(temp, "%d %s %s %s %s %s Returned\n", studentId,
-                    studentName, itemName, description, date, location);
             found = 1;
         }
-        else
-        {
-            fprintf(temp, "%d %s %s %s %s %s %s\n", studentId, studentName,
-                    itemName, description, date, location, status);
-        }
     }
 
     fclose(fp);
-    fclose(temp);
-    remove("lost_items.txt");
-    rename("temp.txt", "lost_items.txt");
 
-    if (found)
-        printf("Item Marked as Returned.\n");
-    else
-        printf("Lost Item Not Found.\n");
+    if (found == 0)
+        printf("No Late Entries Found.\n");
 }
 
-void student_meal_management(int sid)
-{
-    int ch;
 
-    while (1)
-    {
-        printf("\n===== Meal Management =====\n");
-        printf("1. Register Meal\n");
-        printf("2. View Meal Chart\n");
-        printf("3. Daily Meal Payment\n");
-        printf("4. Receive Meal\n");
-        printf("5. Back\n");
-        printf("Choice: ");
-        scanf("%d", &ch);
-
-        switch (ch)
-        {
-        case 1:
-            meal_register(sid);
-            break;
-        case 2:
-            student_view_meal_chart();
-            break;
-        case 3:
-            meal_daily_payment(sid);
-            break;
-        case 4:
-            student_receive_meal(sid);
-            break;
-        case 5:
-            return;
-        default:
-            printf("Invalid Choice!\n");
-        }
-    }
-}
-
-void admin_meal_management()
-{
-    int ch, sid;
-
-    while (1)
-    {
-
-        printf("\n===== Meal Management =====\n");
-        printf("1. View Meal Requests\n");
-        printf("2. Approve Meal Request\n");
-        printf("3. View Room Delivery Requests\n");
-        printf("4. Weekly Meal Chart\n");
-        printf("5. View Daily Payments\n");
-        printf("6. View Student Payment History\n");
-        printf("7. Back\n");
-        printf("Choice: ");
-        scanf("%d", &ch);
-
-        switch (ch)
-        {
-        case 1:
-            admin_view_meal_requests();
-            break;
-        case 2:
-            printf("Enter Student ID: ");
-            scanf("%d", &sid);
-            admin_approve_meal(sid);
-            break;
-        case 3:
-            admin_view_room_delivery_requests();
-            break;
-        case 4:
-            admin_meal_chart();
-            break;
-        case 5:
-            admin_view_daily_payments();
-            break;
-        case 6:
-            printf("Enter Student ID: ");
-            scanf("%d", &sid);
-            admin_view_meal_payment_history(sid);
-            break;
-        case 7:
-            return;
-        default:
-            printf("Invalid Choice!\n");
-        }
-    }
-}
+/* STUDENT TIME & ENTRY MANAGEMENT */
 
 void student_time_entry_management(int sid)
 {
-    int ch;
+    int choice;
 
     while (1)
     {
-
         printf("\n===== Time & Entry Management =====\n");
         printf("1. Check In\n");
         printf("2. Check Out\n");
         printf("3. Back\n");
-        printf("Choice: ");
-        scanf("%d", &ch);
 
-        switch (ch)
+        printf("Choice: ");
+        scanf("%d", &choice);
+
+        switch (choice)
         {
-        case 1:
-            student_checkin(sid);
-            break;
-        case 2:
-            student_checkout(sid);
-            break;
-        case 3:
-            return;
-        default:
-            printf("Invalid Choice!\n");
+            case 1:
+                student_checkin(sid);
+                break;
+
+            case 2:
+                student_checkout(sid);
+                break;
+
+            case 3:
+                return;
+
+            default:
+                printf("Invalid Choice!\n");
         }
     }
 }
 
-void student_lost_found_management(int sid)
+
+/* ADMIN TIME & ENTRY MANAGEMENT */
+
+void admin_time_entry_management()
 {
-    int ch;
+    int choice;
 
     while (1)
     {
+        printf("\n===== Time & Entry Management =====\n");
+        printf("1. View Late Entries\n");
+        printf("2. Back\n");
 
-        printf("\n===== Lost & Found =====\n");
-        printf("1. Report Lost Item\n");
-        printf("2. Report Found Item\n");
-        printf("3. Search Item\n");
-        printf("4. Back\n");
         printf("Choice: ");
-        scanf("%d", &ch);
+        scanf("%d", &choice);
 
-        switch (ch)
+        switch (choice)
         {
-        case 1:
-            report_lost_item(sid);
-            break;
-        case 2:
-            report_found_item(sid);
-            break;
-        case 3:
-            search_item();
-            break;
-        case 4:
-            return;
-        default:
-            printf("Invalid Choice!\n");
+            case 1:
+                admin_view_late_entries();
+                break;
+
+            case 2:
+                return;
+
+            default:
+                printf("Invalid Choice!\n");
         }
     }
 }
 
-void admin_lost_found_management()
-{
-    int ch, sid;
 
-    while (1)
-    {
-
-        printf("\n===== Lost & Found =====\n");
-        printf("1. View Lost Items\n");
-        printf("2. View Found Items\n");
-        printf("3. Search Item\n");
-        printf("4. Mark Lost Item as Returned\n");
-        printf("5. Back\n");
-        printf("Choice: ");
-        scanf("%d", &ch);
-
-        switch (ch)
-        {
-        case 1:
-            admin_view_lost_items();
-            break;
-        case 2:
-            admin_view_found_items();
-            break;
-        case 3:
-            search_item();
-            break;
-        case 4:
-            printf("Enter Student ID: ");
-            scanf("%d", &sid);
-            admin_return_lost_item(sid);
-            break;
-        case 5:
-            return;
-        default:
-            printf("Invalid Choice!\n");
-        }
-    }
-}
+/* ============================================================================
+ * EVENT MANAGEMENT
+ * ============================================================================ */
 
 void event_request(int sid)
 {
     FILE *fp;
+
     char eventName[100];
+
     int type;
     int participants;
 
@@ -1183,12 +1228,16 @@ void event_request(int sid)
     }
 
     fprintf(fp, "%d %s %d %d Pending\n",
-            sid, eventName, type, participants);
+            sid,
+            eventName,
+            type,
+            participants);
 
     fclose(fp);
 
     printf("\nEvent Request Sent Successfully.\n");
 }
+
 
 void admin_view_event_requests()
 {
@@ -1222,20 +1271,20 @@ void admin_view_event_requests()
 
         switch (type)
         {
-        case 1:
-            printf("\nEvent Type   : Cultural");
-            break;
+            case 1:
+                printf("\nEvent Type   : Cultural");
+                break;
 
-        case 2:
-            printf("\nEvent Type   : Sports");
-            break;
+            case 2:
+                printf("\nEvent Type   : Sports");
+                break;
 
-        case 3:
-            printf("\nEvent Type   : Seminar");
-            break;
+            case 3:
+                printf("\nEvent Type   : Seminar");
+                break;
 
-        default:
-            printf("\nEvent Type   : Unknown");
+            default:
+                printf("\nEvent Type   : Unknown");
         }
 
         printf("\nParticipants : %d", participants);
@@ -1245,15 +1294,19 @@ void admin_view_event_requests()
     fclose(fp);
 }
 
+
 void admin_approve_event(int sid)
 {
     FILE *fp;
     FILE *temp;
 
     int studentId;
+
     char eventName[100];
+
     int type;
     int participants;
+
     char status[20];
 
     int choice;
@@ -1280,40 +1333,55 @@ void admin_approve_event(int sid)
                   &participants,
                   status) != EOF)
     {
-        if (studentId == sid && strcmp(status, "Pending") == 0)
+        if (studentId == sid &&
+            strcmp(status, "Pending") == 0)
         {
             switch (choice)
             {
-            case 1:
-                fprintf(temp, "%d %s %d %d Approved\n",
-                        studentId, eventName, type, participants);
+                case 1:
+                    fprintf(temp, "%d %s %d %d Approved\n",
+                            studentId,
+                            eventName,
+                            type,
+                            participants);
 
-                printf("Event Approved Successfully.\n");
-                found = 1;
-                break;
+                    printf("Event Approved Successfully.\n");
 
-            case 2:
-                fprintf(temp, "%d %s %d %d Rejected\n",
-                        studentId, eventName, type, participants);
+                    found = 1;
+                    break;
 
-                printf("Event Rejected.\n");
-                found = 1;
-                break;
+                case 2:
+                    fprintf(temp, "%d %s %d %d Rejected\n",
+                            studentId,
+                            eventName,
+                            type,
+                            participants);
 
-            default:
-                fprintf(temp, "%d %s %d %d %s\n",
-                        studentId, eventName, type,
-                        participants, status);
+                    printf("Event Rejected.\n");
 
-                printf("Invalid Choice!\n");
-                break;
+                    found = 1;
+                    break;
+
+                default:
+                    fprintf(temp, "%d %s %d %d %s\n",
+                            studentId,
+                            eventName,
+                            type,
+                            participants,
+                            status);
+
+                    printf("Invalid Choice!\n");
+                    break;
             }
         }
         else
         {
             fprintf(temp, "%d %s %d %d %s\n",
-                    studentId, eventName, type,
-                    participants, status);
+                    studentId,
+                    eventName,
+                    type,
+                    participants,
+                    status);
         }
     }
 
@@ -1329,158 +1397,633 @@ void admin_approve_event(int sid)
     }
 }
 
-/* MODULE MANAGEMENT */
 
-void guest_management(int sid)
-{
-    int ch;
-
-    while (1)
-    {
-
-        printf("\n===== Guest Management =====\n");
-        printf("1. Guest Registration\n");
-        printf("2. Back\n");
-        printf("Choice: ");
-        scanf("%d", &ch);
-
-        switch (ch)
-        {
-        case 1:
-            guest_register(sid);
-            break;
-
-        case 2:
-            return;
-
-        default:
-            printf("Invalid Choice!\n");
-        }
-    }
-}
-
-void admin_guest_management()
-{
-    int ch, sid;
-
-    while (1)
-    {
-
-        printf("\n===== Guest Management =====\n");
-        printf("1. View Guest Requests\n");
-        printf("2. Approve Guest Request\n");
-        printf("3. Back\n");
-        printf("Choice: ");
-        scanf("%d", &ch);
-
-        switch (ch)
-        {
-        case 1:
-            admin_view_guest_requests();
-            break;
-
-        case 2:
-            printf("Enter Student ID: ");
-            scanf("%d", &sid);
-            admin_approve_guest(sid);
-            break;
-
-        case 3:
-            return;
-
-        default:
-            printf("Invalid Choice!\n");
-        }
-    }
-}
-
-void admin_time_entry_management()
-{
-    int ch;
-
-    while (1)
-    {
-
-        printf("\n===== Time & Entry Management =====\n");
-        printf("1. View Late Entries\n");
-        printf("2. Back\n");
-        printf("Choice: ");
-        scanf("%d", &ch);
-
-        switch (ch)
-        {
-        case 1:
-            admin_view_late_entries();
-            break;
-
-        case 2:
-            return;
-
-        default:
-            printf("Invalid Choice!\n");
-        }
-    }
-}
+/* STUDENT EVENT MANAGEMENT */
 
 void event_management(int sid)
 {
-    int ch;
+    int choice;
 
     while (1)
     {
-
         printf("\n===== Event Management =====\n");
-        printf("1. Event Request\n");
+        printf("1. Request Event\n");
         printf("2. Back\n");
+
         printf("Choice: ");
-        scanf("%d", &ch);
+        scanf("%d", &choice);
 
-        switch (ch)
+        switch (choice)
         {
-        case 1:
-            event_request(sid);
-            break;
+            case 1:
+                event_request(sid);
+                break;
 
-        case 2:
-            return;
+            case 2:
+                return;
 
-        default:
-            printf("Invalid Choice!\n");
+            default:
+                printf("Invalid Choice!\n");
         }
     }
 }
 
+
+/* ADMIN EVENT MANAGEMENT */
+
 void admin_event_management()
 {
-    int ch, sid;
+    int choice;
+    int sid;
 
     while (1)
     {
-
         printf("\n===== Event Management =====\n");
         printf("1. View Event Requests\n");
-        printf("2. Approve/Reject Event\n");
+        printf("2. Approve / Reject Event\n");
         printf("3. Back\n");
+
         printf("Choice: ");
-        scanf("%d", &ch);
+        scanf("%d", &choice);
 
-        switch (ch)
+        switch (choice)
         {
-        case 1:
-            admin_view_event_requests();
-            break;
+            case 1:
+                admin_view_event_requests();
+                break;
 
-        case 2:
-            printf("Enter Student ID: ");
-            scanf("%d", &sid);
-            admin_approve_event(sid);
-            break;
+            case 2:
+                printf("Enter Student ID: ");
+                scanf("%d", &sid);
+                admin_approve_event(sid);
+                break;
 
-        case 3:
-            return;
+            case 3:
+                return;
 
-        default:
-            printf("Invalid Choice!\n");
+            default:
+                printf("Invalid Choice!\n");
+        }
+    }
+}
+
+
+/* ============================================================================
+ * LOST & FOUND
+ * ============================================================================ */
+
+/* REPORT LOST ITEM */
+
+void report_lost_item(int sid)
+{
+    FILE *fp;
+
+    char studentName[50];
+    char itemName[50];
+    char description[100];
+    char date[20];
+    char location[50];
+
+    printf("\n===== Report Lost Item =====\n");
+
+    printf("Enter Student Name: ");
+    scanf("%s", studentName);
+
+    printf("Enter Item Name: ");
+    scanf("%s", itemName);
+
+    printf("Enter Item Description: ");
+    scanf("%s", description);
+
+    printf("Enter Date: ");
+    scanf("%s", date);
+
+    printf("Enter Lost Location: ");
+    scanf("%s", location);
+
+    fp = fopen("lost_items.txt", "a");
+
+    if (fp == NULL)
+    {
+        printf("File Error!\n");
+        return;
+    }
+
+    fprintf(fp, "%d %s %s %s %s %s Lost\n",
+            sid,
+            studentName,
+            itemName,
+            description,
+            date,
+            location);
+
+    fclose(fp);
+
+    printf("Lost Item Reported Successfully.\n");
+}
+
+
+/* REPORT FOUND ITEM */
+
+void report_found_item(int finderId)
+{
+    FILE *fp;
+
+    char finderName[50];
+    char itemName[50];
+    char description[100];
+    char date[20];
+    char location[50];
+
+    printf("\n===== Report Found Item =====\n");
+
+    printf("Enter Finder/Staff Name: ");
+    scanf("%s", finderName);
+
+    printf("Enter Item Name: ");
+    scanf("%s", itemName);
+
+    printf("Enter Item Description: ");
+    scanf("%s", description);
+
+    printf("Enter Date: ");
+    scanf("%s", date);
+
+    printf("Enter Found Location: ");
+    scanf("%s", location);
+
+    fp = fopen("found_items.txt", "a");
+
+    if (fp == NULL)
+    {
+        printf("File Error!\n");
+        return;
+    }
+
+    fprintf(fp, "%d %s %s %s %s %s Found\n",
+            finderId,
+            finderName,
+            itemName,
+            description,
+            date,
+            location);
+
+    fclose(fp);
+
+    printf("Found Item Reported Successfully.\n");
+}
+
+
+/* SEARCH ITEM */
+
+void search_item()
+{
+    FILE *fp;
+
+    char itemName[50];
+
+    int id;
+
+    char name[50];
+    char item[50];
+    char description[100];
+    char date[20];
+    char location[50];
+    char status[20];
+
+    int found = 0;
+
+    printf("\n===== Search Item =====\n");
+
+    printf("Enter Item Name: ");
+    scanf("%s", itemName);
+
+    printf("\n--- Lost Items ---\n");
+
+    fp = fopen("lost_items.txt", "r");
+
+    if (fp != NULL)
+    {
+        while (fscanf(fp, "%d %s %s %s %s %s %s",
+                      &id,
+                      name,
+                      item,
+                      description,
+                      date,
+                      location,
+                      status) != EOF)
+        {
+            if (strcmp(item, itemName) == 0)
+            {
+                printf("Student ID: %d | Name: %s | Item: %s | Description: %s | Date: %s | Location: %s | Status: %s\n",
+                       id,
+                       name,
+                       item,
+                       description,
+                       date,
+                       location,
+                       status);
+
+                found = 1;
+            }
+        }
+
+        fclose(fp);
+    }
+
+    printf("\n--- Found Items ---\n");
+
+    fp = fopen("found_items.txt", "r");
+
+    if (fp != NULL)
+    {
+        while (fscanf(fp, "%d %s %s %s %s %s %s",
+                      &id,
+                      name,
+                      item,
+                      description,
+                      date,
+                      location,
+                      status) != EOF)
+        {
+            if (strcmp(item, itemName) == 0)
+            {
+                printf("Finder ID: %d | Name: %s | Item: %s | Description: %s | Date: %s | Location: %s | Status: %s\n",
+                       id,
+                       name,
+                       item,
+                       description,
+                       date,
+                       location,
+                       status);
+
+                found = 1;
+            }
+        }
+
+        fclose(fp);
+    }
+
+    if (found == 0)
+        printf("No Matching Item Found.\n");
+}
+
+
+/* CHECK ITEM MATCH */
+
+void check_item_match()
+{
+    FILE *lost;
+    FILE *found;
+
+    int lostId;
+    int foundId;
+
+    char lostStudent[50];
+    char foundPerson[50];
+
+    char lostItem[50];
+    char foundItem[50];
+
+    char lostDescription[100];
+    char foundDescription[100];
+
+    char lostDate[20];
+    char foundDate[20];
+
+    char lostLocation[50];
+    char foundLocation[50];
+
+    char lostStatus[20];
+    char foundStatus[20];
+
+    int match = 0;
+
+    lost = fopen("lost_items.txt", "r");
+
+    if (lost == NULL)
+    {
+        printf("No Lost Item Records Found.\n");
+        return;
+    }
+
+    found = fopen("found_items.txt", "r");
+
+    if (found == NULL)
+    {
+        fclose(lost);
+        printf("No Found Item Records Found.\n");
+        return;
+    }
+
+    while (fscanf(lost, "%d %s %s %s %s %s %s",
+                  &lostId,
+                  lostStudent,
+                  lostItem,
+                  lostDescription,
+                  lostDate,
+                  lostLocation,
+                  lostStatus) != EOF)
+    {
+        while (fscanf(found, "%d %s %s %s %s %s %s",
+                      &foundId,
+                      foundPerson,
+                      foundItem,
+                      foundDescription,
+                      foundDate,
+                      foundLocation,
+                      foundStatus) != EOF)
+        {
+            if (strcmp(lostItem, foundItem) == 0 &&
+                strcmp(lostDescription, foundDescription) == 0)
+            {
+                printf("\nPossible Match Found.\n");
+                printf("Lost Item: %s\n", lostItem);
+                printf("Lost Description: %s\n", lostDescription);
+                printf("Found Item: %s\n", foundItem);
+                printf("Found Description: %s\n", foundDescription);
+
+                match = 1;
+            }
+        }
+
+        rewind(found);
+    }
+
+    fclose(lost);
+    fclose(found);
+
+    if (match == 0)
+        printf("No Possible Match Found.\n");
+}
+
+
+/* ADMIN VIEW LOST ITEMS */
+
+void admin_view_lost_items()
+{
+    FILE *fp;
+
+    int sid;
+
+    char studentName[50];
+    char itemName[50];
+    char description[100];
+    char date[20];
+    char location[50];
+    char status[20];
+
+    fp = fopen("lost_items.txt", "r");
+
+    if (fp == NULL)
+    {
+        printf("No Lost Items Found.\n");
+        return;
+    }
+
+    printf("\n========== LOST ITEMS ==========\n");
+
+    while (fscanf(fp, "%d %s %s %s %s %s %s",
+                  &sid,
+                  studentName,
+                  itemName,
+                  description,
+                  date,
+                  location,
+                  status) != EOF)
+    {
+        printf("Student ID: %d | Name: %s | Item: %s | Description: %s | Date: %s | Location: %s | Status: %s\n",
+               sid,
+               studentName,
+               itemName,
+               description,
+               date,
+               location,
+               status);
+    }
+
+    fclose(fp);
+}
+
+
+/* ADMIN VIEW FOUND ITEMS */
+
+void admin_view_found_items()
+{
+    FILE *fp;
+
+    int finderId;
+
+    char finderName[50];
+    char itemName[50];
+    char description[100];
+    char date[20];
+    char location[50];
+    char status[20];
+
+    fp = fopen("found_items.txt", "r");
+
+    if (fp == NULL)
+    {
+        printf("No Found Items Found.\n");
+        return;
+    }
+
+    printf("\n========== FOUND ITEMS ==========\n");
+
+    while (fscanf(fp, "%d %s %s %s %s %s %s",
+                  &finderId,
+                  finderName,
+                  itemName,
+                  description,
+                  date,
+                  location,
+                  status) != EOF)
+    {
+        printf("Finder ID: %d | Name: %s | Item: %s | Description: %s | Date: %s | Location: %s | Status: %s\n",
+               finderId,
+               finderName,
+               itemName,
+               description,
+               date,
+               location,
+               status);
+    }
+
+    fclose(fp);
+}
+
+
+/* ADMIN RETURN LOST ITEM */
+
+void admin_return_lost_item(int sid)
+{
+    FILE *fp;
+    FILE *temp;
+
+    int studentId;
+
+    char studentName[50];
+    char itemName[50];
+    char description[100];
+    char date[20];
+    char location[50];
+    char status[20];
+
+    int found = 0;
+
+    fp = fopen("lost_items.txt", "r");
+    temp = fopen("temp.txt", "w");
+
+    if (fp == NULL)
+    {
+        printf("No Lost Items Found.\n");
+        return;
+    }
+
+    while (fscanf(fp, "%d %s %s %s %s %s %s",
+                  &studentId,
+                  studentName,
+                  itemName,
+                  description,
+                  date,
+                  location,
+                  status) != EOF)
+    {
+        if (studentId == sid &&
+            strcmp(status, "Lost") == 0)
+        {
+            fprintf(temp, "%d %s %s %s %s %s Returned\n",
+                    studentId,
+                    studentName,
+                    itemName,
+                    description,
+                    date,
+                    location);
+
+            found = 1;
+        }
+        else
+        {
+            fprintf(temp, "%d %s %s %s %s %s %s\n",
+                    studentId,
+                    studentName,
+                    itemName,
+                    description,
+                    date,
+                    location,
+                    status);
+        }
+    }
+
+    fclose(fp);
+    fclose(temp);
+
+    remove("lost_items.txt");
+    rename("temp.txt", "lost_items.txt");
+
+    if (found)
+        printf("Lost Item Marked as Returned.\n");
+    else
+        printf("Lost Item Not Found for Student ID %d.\n", sid);
+}
+
+
+/* STUDENT LOST & FOUND MANAGEMENT */
+
+void student_lost_found_management(int sid)
+{
+    int choice;
+
+    while (1)
+    {
+        printf("\n===== Lost & Found Management =====\n");
+        printf("1. Report Lost Item\n");
+        printf("2. Report Found Item\n");
+        printf("3. Search Item\n");
+        printf("4. Check Item Match\n");
+        printf("5. Back\n");
+
+        printf("Choice: ");
+        scanf("%d", &choice);
+
+        switch (choice)
+        {
+            case 1:
+                report_lost_item(sid);
+                break;
+
+            case 2:
+                report_found_item(sid);
+                break;
+
+            case 3:
+                search_item();
+                break;
+
+            case 4:
+                check_item_match();
+                break;
+
+            case 5:
+                return;
+
+            default:
+                printf("Invalid Choice!\n");
+        }
+    }
+}
+
+
+/* ADMIN LOST & FOUND MANAGEMENT */
+
+void admin_lost_found_management()
+{
+    int choice;
+    int sid;
+
+    while (1)
+    {
+        printf("\n===== Lost & Found Management =====\n");
+        printf("1. View Lost Items\n");
+        printf("2. View Found Items\n");
+        printf("3. Search Item\n");
+        printf("4. Check Item Match\n");
+        printf("5. Mark Lost Item as Returned\n");
+        printf("6. Back\n");
+
+        printf("Choice: ");
+        scanf("%d", &choice);
+
+        switch (choice)
+        {
+            case 1:
+                admin_view_lost_items();
+                break;
+
+            case 2:
+                admin_view_found_items();
+                break;
+
+            case 3:
+                search_item();
+                break;
+
+            case 4:
+                check_item_match();
+                break;
+
+            case 5:
+                printf("Enter Student ID: ");
+                scanf("%d", &sid);
+                admin_return_lost_item(sid);
+                break;
+
+            case 6:
+                return;
+
+            default:
+                printf("Invalid Choice!\n");
         }
     }
 }
