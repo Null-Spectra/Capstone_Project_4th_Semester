@@ -384,6 +384,12 @@ void admin_view_room_delivery_requests()
 
 /* ADMIN MEAL CHART */
 
+/* ============================================================================ 
+ * WEEKLY MEAL CHART
+ * ============================================================================ */
+
+/* ADMIN MEAL CHART */
+
 void admin_meal_chart()
 {
     FILE *fp;
@@ -391,9 +397,9 @@ void admin_meal_chart()
     int choice;
 
     char day[20];
-    char breakfast[50];
-    char lunch[50];
-    char dinner[50];
+    char breakfast[100];
+    char lunch[100];
+    char dinner[100];
 
     while (1)
     {
@@ -404,6 +410,10 @@ void admin_meal_chart()
         printf("4. Back\n");
         printf("Choice: ");
         scanf(" %d", &choice);
+
+        /* ============================================================
+         * CREATE / ADD MEAL CHART
+         * ============================================================ */
 
         if (choice == 1)
         {
@@ -429,22 +439,29 @@ void admin_meal_chart()
                 }
 
                 printf("Enter Breakfast: ");
-                scanf(" %49s", breakfast);
+                scanf(" %[^\n]", breakfast);
 
                 printf("Enter Lunch: ");
-                scanf(" %49s", lunch);
+                scanf(" %[^\n]", lunch);
 
                 printf("Enter Dinner: ");
-                scanf(" %49s", dinner);
+                scanf(" %[^\n]", dinner);
 
-                fprintf(fp, "%s %s %s %s\n",
-                        day, breakfast, lunch, dinner);
+                fprintf(fp, "%s|%s|%s|%s\n",
+                        day,
+                        breakfast,
+                        lunch,
+                        dinner);
 
                 printf("Meal Chart Added Successfully.\n");
             }
 
             fclose(fp);
         }
+
+        /* ============================================================
+         * UPDATE MEAL CHART
+         * ============================================================ */
 
         else if (choice == 2)
         {
@@ -454,43 +471,58 @@ void admin_meal_chart()
             if (fp == NULL)
             {
                 printf("No Meal Chart Found.\n");
+
+                if (temp != NULL)
+                    fclose(temp);
+
                 continue;
             }
 
-            printf("Enter Day to Update: ");
+            if (temp == NULL)
+            {
+                printf("File Error!\n");
+                fclose(fp);
+                continue;
+            }
+
+            printf("\nEnter Day to Update: ");
             scanf(" %19s", day);
 
             printf("Enter New Breakfast: ");
-            scanf(" %49s", breakfast);
+            scanf(" %[^\n]", breakfast);
 
             printf("Enter New Lunch: ");
-            scanf(" %49s", lunch);
+            scanf(" %[^\n]", lunch);
 
             printf("Enter New Dinner: ");
-            scanf(" %49s", dinner);
+            scanf(" %[^\n]", dinner);
 
             char oldDay[20];
-            char oldBreakfast[50];
-            char oldLunch[50];
-            char oldDinner[50];
+            char oldBreakfast[100];
+            char oldLunch[100];
+            char oldDinner[100];
 
-            while (fscanf(fp, "%19s %49s %49s %49s",
+            int found = 0;
+
+            while (fscanf(fp, " %19[^|]|%99[^|]|%99[^|]|%99[^\n]",
                           oldDay,
                           oldBreakfast,
                           oldLunch,
-                          oldDinner) != EOF)
+                          oldDinner) == 4)
             {
                 if (strcmp(oldDay, day) == 0)
                 {
-                    fprintf(temp, "%s %s %s %s\n",
+                    fprintf(temp, "%s|%s|%s|%s\n",
                             day,
                             breakfast,
                             lunch,
                             dinner);
+
+                    found = 1;
                 }
                 else
                 {
-                    fprintf(temp, "%s %s %s %s\n",
+                    fprintf(temp, "%s|%s|%s|%s\n",
                             oldDay,
                             oldBreakfast,
                             oldLunch,
@@ -504,8 +536,15 @@ void admin_meal_chart()
             remove("meal_chart.txt");
             rename("temp.txt", "meal_chart.txt");
 
-            printf("Meal Chart Updated Successfully.\n");
+            if (found)
+                printf("Meal Chart Updated Successfully.\n");
+            else
+                printf("Day Not Found.\n");
         }
+
+        /* ============================================================
+         * DELETE MEAL CHART
+         * ============================================================ */
 
         else if (choice == 3)
         {
@@ -515,30 +554,47 @@ void admin_meal_chart()
             if (fp == NULL)
             {
                 printf("No Meal Chart Found.\n");
+
+                if (temp != NULL)
+                    fclose(temp);
+
                 continue;
             }
 
-            printf("Enter Day to Delete: ");
+            if (temp == NULL)
+            {
+                printf("File Error!\n");
+                fclose(fp);
+                continue;
+            }
+
+            printf("\nEnter Day to Delete: ");
             scanf(" %19s", day);
 
             char oldDay[20];
-            char oldBreakfast[50];
-            char oldLunch[50];
-            char oldDinner[50];
+            char oldBreakfast[100];
+            char oldLunch[100];
+            char oldDinner[100];
 
-            while (fscanf(fp, "%19s %49s %49s %49s",
+            int found = 0;
+
+            while (fscanf(fp, " %19[^|]|%99[^|]|%99[^|]|%99[^\n]",
                           oldDay,
                           oldBreakfast,
                           oldLunch,
-                          oldDinner) != EOF)
+                          oldDinner) == 4)
             {
                 if (strcmp(oldDay, day) != 0)
                 {
-                    fprintf(temp, "%s %s %s %s\n",
+                    fprintf(temp, "%s|%s|%s|%s\n",
                             oldDay,
                             oldBreakfast,
                             oldLunch,
                             oldDinner);
+                }
+                else
+                {
+                    found = 1;
                 }
             }
 
@@ -548,8 +604,15 @@ void admin_meal_chart()
             remove("meal_chart.txt");
             rename("temp.txt", "meal_chart.txt");
 
-            printf("Meal Chart Deleted Successfully.\n");
+            if (found)
+                printf("Meal Chart Deleted Successfully.\n");
+            else
+                printf("Day Not Found.\n");
         }
+
+        /* ============================================================
+         * BACK
+         * ============================================================ */
 
         else if (choice == 4)
         {
@@ -562,16 +625,19 @@ void admin_meal_chart()
         }
     }
 }
+/* STUDENT VIEW MEAL CHART */
 
 /* STUDENT VIEW MEAL CHART */
 
 void student_view_meal_chart()
 {
     FILE *fp;
+
     char day[20];
-    char breakfast[50];
-    char lunch[50];
-    char dinner[50];
+    char breakfast[100];
+    char lunch[100];
+    char dinner[100];
+
     int found = 0;
 
     fp = fopen("meal_chart.txt", "r");
@@ -583,14 +649,20 @@ void student_view_meal_chart()
     }
 
     printf("\n========== WEEKLY MEAL CHART ==========\n");
-    printf("Day\t\tBreakfast\tLunch\t\tDinner\n");
-    printf("----------------------------------------------------------\n");
+    printf("Day\t\tBreakfast\t\tLunch\t\t\tDinner\n");
+    printf("--------------------------------------------------------------------------\n");
 
-    while (fscanf(fp, "%s %s %s %s",
-                  day, breakfast, lunch, dinner) != EOF)
+    while (fscanf(fp, " %19[^|]|%99[^|]|%99[^|]|%99[^\n]",
+                  day,
+                  breakfast,
+                  lunch,
+                  dinner) == 4)
     {
-        printf("%s\t\t%s\t\t%s\t\t%s\n",
-               day, breakfast, lunch, dinner);
+        printf("%-10s\t%-20s\t%-20s\t%-20s\n",
+               day,
+               breakfast,
+               lunch,
+               dinner);
 
         found = 1;
     }
@@ -600,7 +672,6 @@ void student_view_meal_chart()
     if (found == 0)
         printf("No Meal Chart Available.\n");
 }
-
 
 /* ============================================================================
  * DAILY MEAL PAYMENT
