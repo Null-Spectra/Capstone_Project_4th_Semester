@@ -460,8 +460,6 @@ void staff_update_complaint() {
 void admin_portal()
 {
     int ch;
-    int sid;
-    int eventChoice;
 
     while (1)
     {
@@ -477,170 +475,124 @@ void admin_portal()
         printf("7. Register Staff\n");
         printf("8. Executive Summary\n");
 
-        printf("9. View Guest Requests\n");
-        printf("10. Approve Guest Request\n");
-        printf("11. View Meal Requests\n");
-        printf("12. Approve Meal Request\n");
-        printf("13. View Late Entries\n");
-        printf("14. Event Management\n");
-        printf("15. Complaint Management\n");
-        printf("16. New Student Booking Requests\n");
+        printf("9. Guest Management\n");
+        printf("10. Meal Management\n");
+        printf("11. Time & Entry Management\n");
+        printf("12. Event Management\n");
+        printf("13. Lost & Found\n");
+        printf("14. Complaint Management\n");
+        printf("15. New Student Booking Requests\n");
 
-        printf("17. Logout\n");
+        printf("16. Logout\n");
 
         printf("Choice: ");
-        if (scanf("%d", &ch) != 1 || ch == 17) break;
+        if (scanf("%d", &ch) != 1 || ch == 16)
+            break;
 
-        switch(ch)
+        switch (ch)
         {
-            case 1:
-                admin_register_student();
-                break;
+        case 1:
+            admin_register_student();
+            break;
 
-            case 2:
-                admin_student_ops();
-                break;
+        case 2:
+            admin_student_ops();
+            break;
 
-            case 3:
-                admin_search_student();
-                break;
+        case 3:
+            admin_search_student();
+            break;
 
-            case 4:
-                admin_search_room();
-                break;
+        case 4:
+            admin_search_room();
+            break;
 
-            case 5:
-                admin_room_ops();
-                break;
+        case 5:
+            admin_room_ops();
+            break;
 
-            case 6:
-                admin_fee_ops();
-                break;
+        case 6:
+            admin_fee_ops();
+            break;
 
-            case 7:
-                admin_staff_ops();
-                break;
+        case 7:
+            admin_staff_ops();
+            break;
 
-            case 8:
-                admin_executive_summary();
-                break;
+        case 8:
+            admin_executive_summary();
+            break;
 
-            case 9:
-                admin_view_guest_requests();
-                break;
+        case 9:
+            admin_guest_management();
+            break;
 
-            case 10:
-                printf("Enter Student ID: ");
-                if (scanf("%d", &sid) != 1) {
-                    printf("Invalid Input!\n");
-                    pause_term();
+        case 10:
+            admin_meal_management();
+            break;
+
+        case 11:
+            admin_time_entry_management();
+            break;
+
+        case 12:
+            admin_event_management();
+            break;
+
+        case 13:
+            admin_lost_found_management();
+            break;
+
+        case 14:
+            while (1)
+            {
+                clear_term();
+                printf("\n===== Complaint Management =====\n");
+                printf("1. View All Complaints\n");
+                printf("2. Assign Complaint to Staff\n");
+                printf("3. Back\n");
+                printf("Choice: ");
+                int compChoice;
+                if (scanf("%d", &compChoice) != 1 || compChoice == 3)
                     break;
-                }
-                admin_approve_guest(sid);
-                break;
+                if (compChoice == 1)
+                    admin_view_complaints();
+                else if (compChoice == 2)
+                    admin_assign_complaint();
+                else
+                    printf("Invalid Choice!\n");
+                pause_term();
+            }
+            break;
 
-            case 11:
-                admin_view_meal_requests();
-                break;
-
-            case 12:
-                printf("Enter Student ID: ");
-                if (scanf("%d", &sid) != 1) {
-                    printf("Invalid Input!\n");
-                    pause_term();
+        case 15:
+            while (1)
+            {
+                clear_term();
+                printf("\n===== New Student Booking Requests (Priority Queue) =====\n");
+                printf("1. View Requests Queue (FCFS Order)\n");
+                printf("2. Process / Approve Request\n");
+                printf("3. Back\n");
+                printf("Choice: ");
+                int bchoice;
+                if (scanf("%d", &bchoice) != 1 || bchoice == 3)
                     break;
-                }
-                admin_approve_meal(sid);
-                break;
+                if (bchoice == 1)
+                    admin_view_new_booking_requests_priority_queue();
+                else if (bchoice == 2)
+                    admin_approve_new_booking_request_priority_queue();
+                else
+                    printf("Invalid Choice!\n");
+                pause_term();
+            }
+            break;
 
-            case 13:
-                admin_view_late_entries();
-                break;
+        case 16:
+            printf("Logging out...\n");
+            return;
 
-            case 14:
-
-                while(1)
-                {
-                    clear_term();
-                    printf("\n===== Event Management =====\n");
-                    printf("1. View Event Requests\n");
-                    printf("2. Approve/Reject Event\n");
-                    printf("3. Back\n");
-
-                    printf("Choice: ");
-                    scanf("%d", &eventChoice);
-
-                    switch(eventChoice)
-                    {
-                        case 1:
-                            admin_view_event_requests();
-                            break;
-
-                        case 2:
-                            printf("Enter Student ID: ");
-                            if (scanf("%d", &sid) != 1) {
-                                printf("Invalid Input!\n");
-                                pause_term();
-                                break;
-                            }
-                            admin_approve_event(sid);
-                            break;
-
-                        case 3:
-                            break;
-
-                        default:
-                            printf("Invalid Choice!\n");
-                    }
-
-                    if(eventChoice == 3)
-                        break;
-
-                    pause_term();
-                }
-
-                break;
-
-            case 15:
-                while(1) {
-                    clear_term();
-                    printf("\n===== Complaint Management =====\n");
-                    printf("1. View All Complaints\n");
-                    printf("2. Assign Complaint to Staff\n");
-                    printf("3. Back\n");
-                    printf("Choice: ");
-                    int compChoice;
-                    if (scanf("%d", &compChoice) != 1 || compChoice == 3) break;
-                    if (compChoice == 1) admin_view_complaints();
-                    else if (compChoice == 2) admin_assign_complaint();
-                    else printf("Invalid Choice!\n");
-                    pause_term();
-                }
-                break;
-
-            case 16:
-                while(1) {
-                    clear_term();
-                    printf("\n===== New Student Booking Requests (Priority Queue) =====\n");
-                    printf("1. View Requests Queue (FCFS Order)\n");
-                    printf("2. Process / Approve Request\n");
-                    printf("3. Back\n");
-                    printf("Choice: ");
-                    int bchoice;
-                    if (scanf("%d", &bchoice) != 1 || bchoice == 3) break;
-                    if (bchoice == 1) admin_view_new_booking_requests_priority_queue();
-                    else if (bchoice == 2) admin_approve_new_booking_request_priority_queue();
-                    else printf("Invalid Choice!\n");
-                    pause_term();
-                }
-                break;
-
-            case 17:
-                printf("Logging out...\n");
-                return;
-
-            default:
-                printf("Invalid Choice!\n");
+        default:
+            printf("Invalid Choice!\n");
         }
 
         pause_term();
@@ -665,77 +617,78 @@ void student_portal(int sid)
         printf("7. Booking History\n");
         printf("8. Book for New Student\n");
 
-        printf("9. Guest Registration\n");
-        printf("10. Meal Registration\n");
-        printf("11. Check In\n");
-        printf("12. Check Out\n");
-        printf("13. Event Request\n");
+        printf("9. Guest Management\n");
+        printf("10. Meal Management\n");
+        printf("11. Time & Entry Management\n");
+        printf("12. Event Management\n");
+        printf("13. Lost & Found\n");
 
         printf("14. Logout\n");
 
         printf("Choice: ");
-        if (scanf("%d", &ch) != 1) break;
+        if (scanf("%d", &ch) != 1 || ch == 14)
+            break;
 
-        switch(ch)
+        switch (ch)
         {
-            case 1:
-                student_view_profile(sid);
-                break;
+        case 1:
+            student_view_profile(sid);
+            break;
 
-            case 2:
-                student_view_fees(sid);
-                break;
+        case 2:
+            student_view_fees(sid);
+            break;
 
-            case 3:
-                student_submit_slip(sid);
-                break;
+        case 3:
+            student_submit_slip(sid);
+            break;
 
-            case 4:
-                student_request_transfer(sid);
-                break;
+        case 4:
+            student_request_transfer(sid);
+            break;
 
-            case 5:
-                student_submit_complaint(sid);
-                break;
+        case 5:
+            student_submit_complaint(sid);
+            break;
 
-            case 6:
-                student_request_leave(sid);
-                break;
+        case 6:
+            student_request_leave(sid);
+            break;
 
-            case 7:
-                student_view_booking_history(sid);
-                break;
+        case 7:
+            student_view_booking_history(sid);
+            break;
 
-            case 8:
-                student_book_for_new(sid);
-                break;
+        case 8:
+            student_book_for_new(sid);
+            break;
 
-            case 9:
-                guest_register(sid);
-                break;
+        case 9:
+            guest_management(sid);
+            break;
 
-            case 10:
-                meal_register(sid);
-                break;
+        case 10:
+            student_meal_management(sid);
+            break;
 
-            case 11:
-                student_checkin(sid);
-                break;
+        case 11:
+            student_time_entry_management(sid);
+            break;
 
-            case 12:
-                student_checkout(sid);
-                break;
+        case 12:
+            event_management(sid);
+            break;
 
-            case 13:
-                event_request(sid);
-                break;
+        case 13:
+            student_lost_found_management(sid);
+            break;
 
-            case 14:
-                printf("Logging out...\n");
-                return;
+        case 14:
+            printf("Logging out...\n");
+            return;
 
-            default:
-                printf("Invalid Choice!\n");
+        default:
+            printf("Invalid Choice!\n");
         }
 
         pause_term();
