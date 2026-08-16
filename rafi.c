@@ -797,9 +797,10 @@ void provost_portal() {
         printf("11. View Event Requests\n");
         printf("12. View Late Entry Logs\n");
         printf("13. View New Student Booking Requests (FCFS Order)\n");
-        printf("14. Logout\n");
+        printf("14. View Room Transfer Request Logs\n");
+        printf("15. Logout\n");
         printf("Choice: ");
-        if (scanf("%d", &ch) != 1 || ch == 14) break;
+        if (scanf("%d", &ch) != 1 || ch == 15) break;
 
         switch(ch) {
             case 1: admin_executive_summary(); break;
@@ -815,7 +816,8 @@ void provost_portal() {
             case 11: admin_view_event_requests(); break;
             case 12: admin_view_late_entries(); break;
             case 13: admin_view_new_booking_requests_priority_queue(); break;
-            case 14: printf("Logging out...\n"); return;
+            case 14: admin_view_transfer_requests(); break;
+            case 15: printf("Logging out...\n"); return;
             default: printf("Invalid Choice!\n");
         }
         pause_term();

@@ -12,5 +12,7 @@ void admin_student_ops();
 void public_view_rooms();
 void show_call_now();
 void student_view_booking_history(int sid);
+void admin_view_transfer_requests();
+void admin_approve_transfer_request();
 
 #endif /* SADIA_H */
